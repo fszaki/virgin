@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { session_end } from './session.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,17 @@ app.get('/api/hello', (_req, res) => {
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+// New route for ending a session
+app.post('/api/session/end', (req, res) => {
+  const { sessionId, reason } = req.body || {};
+  try {
+    const result = session_end(sessionId, { reason });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Static UI
