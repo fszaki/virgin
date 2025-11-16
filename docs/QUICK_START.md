@@ -14,13 +14,13 @@ Schnellanleitung zum Starten des Servers nach einem Neustart des Containers.
 
 ```bash
 cd /workspaces/virgin
-./kill-server.sh
+./scripts/server/kill-server.sh
 ```
 
 ### 2️⃣ Server starten
 
 ```bash
-./start-server.sh
+cd backend && npm start
 ```
 
 ### 3️⃣ Browser öffnen
@@ -38,31 +38,20 @@ cd /workspaces/virgin
 Wenn du das Projekt zum ersten Mal startest:
 
 ```bash
-cd /workspaces/virgin
+cd /workspaces/virgin/backend
 
-# 1. Scripts ausführbar machen
-chmod +x *.sh
-
-# 2. Abhängigkeiten installieren
+# 1. Abhängigkeiten installieren
 npm install
 
-# 3. Projektstruktur einrichten (optional)
-./setup-structure.sh
-
-# 4. Server starten
-./start-server.sh
+# 2. Server starten
+npm start
 ```
 
 ### Nach Container-Neustart
 
 ```bash
-cd /workspaces/virgin
-
-# Schnellstart
-./start-server.sh
-
-# Oder mit NPM
-npm run server:start
+cd /workspaces/virgin/backend
+npm start
 ```
 
 ---
@@ -71,28 +60,21 @@ npm run server:start
 
 | Script | Befehl | Beschreibung |
 |--------|--------|--------------|
-| **Server starten** | `./start-server.sh` | Startet den Server mit Logging |
-| **Server beenden** | `./kill-server.sh` | Beendet alle laufenden Server |
-| **Environment testen** | `./test-environment.sh` | Prüft die Umgebung ausführlich |
-| **Struktur anzeigen** | `./show-structure.sh` | Zeigt Projektstruktur |
-| **Struktur erstellen** | `./setup-structure.sh` | Erstellt Ordnerstruktur |
+| **Server starten** | `cd backend && npm start` | Startet den Server |
+| **Server (Dev)** | `cd backend && npm run dev` | Start mit Hot-Reload |
+| **Server beenden** | `./scripts/server/kill-server.sh` | Beendet laufende Server |
+| **Environment testen** | `./scripts/utils/test-environment.sh` | Prüft die Umgebung |
+| **Struktur anzeigen** | `./scripts/utils/show-structure.sh` | Zeigt Projektstruktur |
+| **Struktur erstellen** | `./scripts/setup/setup-structure.sh` | Erstellt Ordnerstruktur |
 
 ### NPM Scripts
 
 ```bash
-# Server starten
-npm start
-npm run dev
-npm run server:start
+# Backend starten
+cd backend && npm start
 
-# Server beenden
-npm run server:kill
-
-# Server neu starten
-npm run server:restart
-
-# Logs anzeigen
-npm run server:logs
+# Entwicklungsmodus (Hot-Reload)
+cd backend && npm run dev
 ```
 
 ---
@@ -106,14 +88,14 @@ npm run server:logs
 lsof -i :3000
 
 # Beende automatisch
-./kill-server.sh
+./scripts/server/kill-server.sh
 ```
 
 ### Server startet nicht
 
 ```bash
 # 1. Prüfe Umgebung
-./test-environment.sh
+./scripts/utils/test-environment.sh
 
 # 2. Prüfe Logs
 cat logs/server-*.log | tail -50
@@ -123,7 +105,7 @@ rm -rf node_modules
 npm install
 
 # 4. Starte neu
-./start-server.sh
+cd backend && npm start
 ```
 
 ### Abhängigkeiten fehlen
@@ -233,10 +215,10 @@ Führe das Setup-Script aus:
 
 ```bash
 # Aliases hinzufügen (empfohlen zuerst)
-./setup-aliases.sh
+./scripts/setup/setup-aliases.sh
 
 # Autostart konfigurieren
-./setup-autostart.sh
+./scripts/setup/setup-autostart.sh
 ```
 
 Wähle einen Modus:
