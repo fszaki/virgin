@@ -55,16 +55,16 @@ Virgin Project ist ein vollständig konfiguriertes Express.js Server-Template mi
 **Für sofortigen Start siehe:** [QUICK_START.md](QUICK_START.md)
 
 ```bash
-# 1. In Projektverzeichnis wechseln
-cd /workspaces/virgin
+# 1. In Backend-Verzeichnis wechseln
+cd /workspaces/virgin/backend
 
 # 2. Abhängigkeiten installieren
 npm install
 
 # 3. Server starten
-./start-server.sh
+npm start
 
-# 4. Browser öffnen
+# 4. Browser öffnen (optional)
 "$BROWSER" http://localhost:3000
 ```
 

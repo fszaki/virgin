@@ -16,10 +16,10 @@ Ordnerstruktur:
 ```bash
 cd /workspaces/virgin/backend
 npm install
-npm run dev
+npm start
 ```
 
-Dann im Terminal: `$BROWSER http://localhost:3000`
+Optional: `"$BROWSER" http://localhost:3000` öffnen
 
 Direktaufrufe:
 - Views: `http://localhost:3000/`, `http://localhost:3000/landing`, `http://localhost:3000/statistik`
@@ -29,7 +29,7 @@ Direktaufrufe:
 
 ```bash
 npm run dev      # Entwicklung mit Hot-Reload
-npm start        # Produktion
+npm start        # Start (Standardport 3000)
 npm run info     # Projekt-Info anzeigen
 ```
 
