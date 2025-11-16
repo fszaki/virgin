@@ -13,6 +13,7 @@
 const express = require('express');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
+const readline = require('readline');
 const pkg = require('./package.json');
 
 const app = express();
@@ -103,12 +104,40 @@ app.get('/healthz', (req, res) => {
     });
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`\n✓ Web server is running on http://localhost:${PORT}`);
-    console.log(`✓ Health endpoint: http://localhost:${PORT}/healthz`);
-    console.log(`\nPress Ctrl+C to stop the server\n`);
-});
+// Funktion zum Starten des Servers
+function startServer() {
+    app.listen(PORT, () => {
+        console.log(`\n✓ Web server is running on http://localhost:${PORT}`);
+        console.log(`✓ Health endpoint: http://localhost:${PORT}/healthz`);
+        console.log(`\nPress Ctrl+C to stop the server\n`);
+    });
+}
+
+// Benutzer fragen, ob Server gestartet werden soll
+function askToStartServer() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    console.log('\n' + '='.repeat(60));
+    rl.question('Möchten Sie den Server starten? (j/n): ', (answer) => {
+        rl.close();
+        
+        const normalizedAnswer = answer.trim().toLowerCase();
+        
+        if (normalizedAnswer === 'j' || normalizedAnswer === 'ja' || normalizedAnswer === 'y' || normalizedAnswer === 'yes') {
+            console.log('✓ Server wird gestartet...\n');
+            startServer();
+        } else {
+            console.log('✗ Server-Start abgebrochen.\n');
+            process.exit(0);
+        }
+    });
+}
+
+// Starte den Bestätigungsprozess
+askToStartServer();
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
