@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Safe Restart - Abgesicherte Neustart-Routine
-# Stoppt alle Server, startet Remote Desktop neu und führt kontrollierte Start-Routine aus
+# Stoppt alle Services und startet sie sicher via Docker Compose neu
 #
 
 set -e
@@ -23,7 +23,6 @@ SAFE_RESTART_LOG="$LOG_DIR/safe-restart-$(date +%Y%m%d-%H%M%S).log"
 
 # Timeouts (in Sekunden)
 SHUTDOWN_TIMEOUT=5
-DESKTOP_RESTART_TIMEOUT=10
 HEALTH_CHECK_TIMEOUT=30
 HEALTH_CHECK_INTERVAL=2
 
@@ -33,10 +32,9 @@ log() {
 }
 
 # Header anzeigen
-clear
 echo -e "${BOLD}${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BOLD}${CYAN}║                                                            ║${NC}"
-echo -e "${BOLD}${CYAN}║          VIRGIN PROJECT - SAFE RESTART ROUTINE             ║${NC}"
+echo -e "${BOLD}${CYAN}║     VIRGIN PROJECT - SAFE RESTART (Docker Compose)         ║${NC}"
 echo -e "${BOLD}${CYAN}║                                                            ║${NC}"
 echo -e "${BOLD}${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
@@ -92,159 +90,38 @@ countdown() {
 }
 
 # ============================================
-# SCHRITT 1: Alle Server stoppen
+# SCHRITT 1: Services stoppen (Docker Compose)
 # ============================================
 echo ""
 echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo -e "${BOLD}${BLUE}  SCHRITT 1: Server-Shutdown${NC}"
 echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
 
-ask_user "Alle laufenden Server stoppen?"
+ask_user "Alle laufenden Services (docker compose) stoppen?"
 
-log "Schritt 1: Server-Shutdown beginnt"
-
-# Prüfe ob Virgin Server läuft
-echo ""
-echo -e "${CYAN}Prüfe Virgin Project Server...${NC}"
-if [ -f "$PROJECT_DIR/server.pid" ]; then
-    PID=$(cat "$PROJECT_DIR/server.pid")
-    if ps -p $PID > /dev/null 2>&1; then
-        echo -e "${YELLOW}  Server läuft (PID: $PID)${NC}"
-        log "Virgin Server gefunden (PID: $PID)"
-        
-        if [ -x "$PROJECT_DIR/kill-server.sh" ]; then
-            echo -e "${CYAN}  Stoppe Server mit kill-server.sh...${NC}"
-            "$PROJECT_DIR/kill-server.sh" >> "$SAFE_RESTART_LOG" 2>&1
-            echo -e "${GREEN}  ✓ Server gestoppt${NC}"
-            log "Virgin Server gestoppt"
-        else
-            echo -e "${CYAN}  Stoppe Server manuell...${NC}"
-            kill -TERM $PID 2>/dev/null || kill -9 $PID 2>/dev/null
-            rm -f "$PROJECT_DIR/server.pid"
-            echo -e "${GREEN}  ✓ Server gestoppt${NC}"
-            log "Virgin Server manuell gestoppt"
-        fi
-    else
-        echo -e "${GREEN}  ✓ Server läuft nicht${NC}"
-        log "Virgin Server läuft nicht"
-    fi
+log "Schritt 1: docker compose down"
+if command -v docker >/dev/null; then
+  (cd "$PROJECT_DIR" && docker compose down) >> "$SAFE_RESTART_LOG" 2>&1 || true
 else
-    echo -e "${GREEN}  ✓ Keine PID-Datei gefunden${NC}"
-    log "Keine PID-Datei gefunden"
+  echo -e "${RED}Docker nicht verfügbar. Abbruch.${NC}"
+  log "ERROR: Docker nicht verfügbar"
+  exit 1
 fi
-
-# Prüfe Port 3000
-echo ""
-echo -e "${CYAN}Prüfe Port 3000...${NC}"
-PORT_PIDS=$(lsof -ti :3000 2>/dev/null || true)
-if [ -n "$PORT_PIDS" ]; then
-    echo -e "${YELLOW}  Prozesse auf Port 3000 gefunden: $PORT_PIDS${NC}"
-    log "Prozesse auf Port 3000: $PORT_PIDS"
-    for pid in $PORT_PIDS; do
-        echo -e "${CYAN}  Stoppe Prozess $pid...${NC}"
-        kill -TERM $pid 2>/dev/null || kill -9 $pid 2>/dev/null
-        log "Prozess $pid gestoppt"
-    done
-    echo -e "${GREEN}  ✓ Alle Prozesse auf Port 3000 gestoppt${NC}"
-else
-    echo -e "${GREEN}  ✓ Port 3000 ist frei${NC}"
-    log "Port 3000 ist frei"
-fi
-
-# Prüfe weitere Node-Prozesse
-echo ""
-echo -e "${CYAN}Prüfe weitere Node-Prozesse...${NC}"
-NODE_PIDS=$(pgrep -f "node.*server.js" 2>/dev/null || true)
-if [ -n "$NODE_PIDS" ]; then
-    echo -e "${YELLOW}  Node-Prozesse gefunden: $NODE_PIDS${NC}"
-    log "Weitere Node-Prozesse gefunden: $NODE_PIDS"
-    ask_user "Diese Node-Prozesse auch stoppen?"
-    for pid in $NODE_PIDS; do
-        echo -e "${CYAN}  Stoppe Prozess $pid...${NC}"
-        kill -TERM $pid 2>/dev/null || kill -9 $pid 2>/dev/null
-        log "Node-Prozess $pid gestoppt"
-    done
-    echo -e "${GREEN}  ✓ Alle Node-Prozesse gestoppt${NC}"
-else
-    echo -e "${GREEN}  ✓ Keine weiteren Node-Prozesse${NC}"
-    log "Keine weiteren Node-Prozesse"
-fi
-
 countdown $SHUTDOWN_TIMEOUT "Shutdown-Wartezeit"
 log "Schritt 1 abgeschlossen"
 
 # ============================================
-# SCHRITT 2: Remote Desktop Neustart
+# SCHRITT 2: Services starten (Docker Compose)
 # ============================================
 echo ""
 echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
-echo -e "${BOLD}${BLUE}  SCHRITT 2: Remote Desktop Neustart${NC}"
+echo -e "${BOLD}${BLUE}  SCHRITT 2: Services starten${NC}"
 echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
 
-ask_user "Remote Desktop neu starten?"
+ask_user "Services via docker compose starten?"
 
-log "Schritt 2: Remote Desktop Neustart beginnt"
-
-echo ""
-echo -e "${CYAN}Prüfe Remote Desktop Prozesse...${NC}"
-
-# Prüfe auf noVNC/Desktop-Prozesse
-DESKTOP_PIDS=$(pgrep -f "novnc|tigervnc|x11vnc|Xvnc" 2>/dev/null || true)
-if [ -n "$DESKTOP_PIDS" ]; then
-    echo -e "${YELLOW}  Desktop-Prozesse gefunden: $DESKTOP_PIDS${NC}"
-    log "Desktop-Prozesse gefunden: $DESKTOP_PIDS"
-    
-    echo -e "${CYAN}  Stoppe Desktop-Prozesse...${NC}"
-    for pid in $DESKTOP_PIDS; do
-        kill -TERM $pid 2>/dev/null || true
-        log "Desktop-Prozess $pid gestoppt"
-    done
-    
-    sleep 2
-    
-    # Force kill falls nötig
-    DESKTOP_PIDS=$(pgrep -f "novnc|tigervnc|x11vnc|Xvnc" 2>/dev/null || true)
-    if [ -n "$DESKTOP_PIDS" ]; then
-        echo -e "${YELLOW}  Force-Kill für verbliebene Prozesse...${NC}"
-        for pid in $DESKTOP_PIDS; do
-            kill -9 $pid 2>/dev/null || true
-        done
-    fi
-    
-    echo -e "${GREEN}  ✓ Desktop-Prozesse gestoppt${NC}"
-else
-    echo -e "${YELLOW}  ℹ Keine Desktop-Prozesse gefunden${NC}"
-    log "Keine Desktop-Prozesse gefunden"
-fi
-
-# Prüfe auf systemd Desktop-Services
-echo ""
-echo -e "${CYAN}Prüfe Desktop-Services...${NC}"
-if command -v systemctl &> /dev/null; then
-    DESKTOP_SERVICES=$(systemctl --user list-units --type=service --state=running | grep -i "desktop\|vnc\|x11" | awk '{print $1}' || true)
-    if [ -n "$DESKTOP_SERVICES" ]; then
-        echo -e "${YELLOW}  Desktop-Services gefunden:${NC}"
-        echo "$DESKTOP_SERVICES"
-        log "Desktop-Services gefunden: $DESKTOP_SERVICES"
-        
-        ask_user "Diese Services neu starten?"
-        
-        for service in $DESKTOP_SERVICES; do
-            echo -e "${CYAN}  Starte $service neu...${NC}"
-            systemctl --user restart "$service" >> "$SAFE_RESTART_LOG" 2>&1 || true
-            log "Service $service neu gestartet"
-        done
-        echo -e "${GREEN}  ✓ Services neu gestartet${NC}"
-    else
-        echo -e "${GREEN}  ✓ Keine aktiven Desktop-Services${NC}"
-        log "Keine aktiven Desktop-Services"
-    fi
-else
-    echo -e "${YELLOW}  ℹ systemctl nicht verfügbar${NC}"
-    log "systemctl nicht verfügbar"
-fi
-
-countdown $DESKTOP_RESTART_TIMEOUT "Desktop-Neustart-Wartezeit"
+log "Schritt 2: docker compose up -d --build"
+(cd "$PROJECT_DIR" && DOCKER_BUILDKIT=1 docker compose up -d --build) >> "$SAFE_RESTART_LOG" 2>&1
 log "Schritt 2 abgeschlossen"
 
 # ============================================
@@ -267,64 +144,17 @@ echo -e "${CYAN}  Node.js:${NC}"
 if command -v node &> /dev/null; then
     NODE_VERSION=$(node --version)
     echo -e "${GREEN}    ✓ $NODE_VERSION${NC}"
-    log "Node.js: $NODE_VERSION"
-else
-    echo -e "${RED}    ✗ Nicht installiert${NC}"
-    log "ERROR: Node.js nicht gefunden"
-    exit 1
-fi
-
-# npm prüfen
-echo -e "${CYAN}  npm:${NC}"
-if command -v npm &> /dev/null; then
-    NPM_VERSION=$(npm --version)
-    echo -e "${GREEN}    ✓ v$NPM_VERSION${NC}"
-    log "npm: v$NPM_VERSION"
-else
-    echo -e "${RED}    ✗ Nicht installiert${NC}"
-    log "ERROR: npm nicht gefunden"
-    exit 1
-fi
-
-# Projekt-Dateien prüfen
-echo -e "${CYAN}  Projekt-Dateien:${NC}"
-REQUIRED_FILES=("server.js" "package.json")
-for file in "${REQUIRED_FILES[@]}"; do
-    if [ -f "$PROJECT_DIR/$file" ]; then
-        echo -e "${GREEN}    ✓ $file${NC}"
-        log "Datei gefunden: $file"
+    echo -e "${CYAN}  Docker:${NC}"
+    if command -v docker &> /dev/null; then
+        echo -e "${GREEN}    ✓ $(docker --version)${NC}"
+        log "Docker verfügbar"
     else
-        echo -e "${RED}    ✗ $file fehlt${NC}"
-        log "ERROR: $file fehlt"
+        echo -e "${RED}    ✗ Nicht installiert${NC}"
+        log "ERROR: Docker nicht gefunden"
         exit 1
     fi
-done
 
-# app/node_modules prüfen
-echo -e "${CYAN}  Abhängigkeiten:${NC}"
-if [ -d "$PROJECT_DIR/app/node_modules" ]; then
-    PKG_COUNT=$(find "$PROJECT_DIR/app/node_modules" -maxdepth 1 -type d | wc -l)
-    echo -e "${GREEN}    ✓ app/node_modules ($PKG_COUNT Pakete)${NC}"
-    log "app/node_modules: $PKG_COUNT Pakete"
-else
-    echo -e "${YELLOW}    ⚠ app/node_modules fehlt${NC}"
-    log "WARNING: app/node_modules fehlt"
-    ask_user "npm install ausführen?"
-    cd "$PROJECT_DIR"
-    npm install >> "$SAFE_RESTART_LOG" 2>&1
-    echo -e "${GREEN}    ✓ Abhängigkeiten installiert${NC}"
-    log "Abhängigkeiten installiert"
-fi
-
-# Port-Verfügbarkeit prüfen
-echo -e "${CYAN}  Port 3000:${NC}"
-if lsof -i :3000 >/dev/null 2>&1; then
-    echo -e "${RED}    ✗ Port belegt${NC}"
-    log "ERROR: Port 3000 belegt"
-    exit 1
-else
-    echo -e "${GREEN}    ✓ Verfügbar${NC}"
-    log "Port 3000 verfügbar"
+    echo -e "${GREEN}✓ Umgebung validiert${NC}"
 fi
 
 echo -e "${GREEN}✓ Umgebung validiert${NC}"
@@ -338,37 +168,7 @@ echo -e "${BOLD}${BLUE}═══════════════════
 echo -e "${BOLD}${BLUE}  SCHRITT 4: Server starten${NC}"
 echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════${NC}"
 
-ask_user "Server jetzt starten?"
-
-log "Schritt 4: Server-Start beginnt"
-
-echo ""
-if [ -x "$PROJECT_DIR/start-server.sh" ]; then
-    echo -e "${CYAN}Starte Server mit start-server.sh...${NC}"
-    cd "$PROJECT_DIR"
-    ./start-server.sh >> "$SAFE_RESTART_LOG" 2>&1
-    SERVER_START_EXIT=$?
-    
-    if [ $SERVER_START_EXIT -eq 0 ]; then
-        echo -e "${GREEN}✓ Server gestartet${NC}"
-        log "Server erfolgreich gestartet"
-    else
-        echo -e "${RED}✗ Server-Start fehlgeschlagen (Exit Code: $SERVER_START_EXIT)${NC}"
-        log "ERROR: Server-Start fehlgeschlagen (Exit Code: $SERVER_START_EXIT)"
-        echo ""
-        echo -e "${YELLOW}Letzte Log-Zeilen:${NC}"
-        tail -20 "$SAFE_RESTART_LOG"
-        exit 1
-    fi
-else
-    echo -e "${CYAN}Starte Server manuell...${NC}"
-    cd "$PROJECT_DIR"
-    nohup node server.js > "$LOG_DIR/server-$(date +%Y%m%d-%H%M%S).log" 2>&1 &
-    SERVER_PID=$!
-    echo $SERVER_PID > "$PROJECT_DIR/server.pid"
-    echo -e "${GREEN}✓ Server gestartet (PID: $SERVER_PID)${NC}"
-    log "Server manuell gestartet (PID: $SERVER_PID)"
-fi
+echo -e "${GREEN}✓ Services gestartet (siehe Schritt 2)${NC}"
 
 # ============================================
 # SCHRITT 5: Health Check
@@ -385,7 +185,7 @@ log "Schritt 5: Health Check beginnt"
 echo ""
 echo -e "${CYAN}Warte auf Server-Bereitschaft...${NC}"
 
-HEALTH_URL="http://localhost:3000/healthz"
+HEALTH_URL="http://localhost:3000/api/health"
 ELAPSED=0
 SUCCESS=0
 
@@ -448,14 +248,14 @@ if [ -f "$PROJECT_DIR/server.pid" ]; then
     SERVER_PID=$(cat "$PROJECT_DIR/server.pid")
     echo -e "${CYAN}  PID:${NC} $SERVER_PID"
 fi
-echo -e "${CYAN}  URL:${NC} http://localhost:3000"
-echo -e "${CYAN}  Health:${NC} http://localhost:3000/healthz"
+echo -e "${CYAN}  Backend:${NC}  http://localhost:3000  (Health: /api/health)"
+echo -e "${CYAN}  Frontend:${NC} http://localhost:8080"
 echo -e "${CYAN}  Log:${NC} $SAFE_RESTART_LOG"
 
 echo ""
 echo -e "${YELLOW}Nützliche Befehle:${NC}"
-echo -e "${CYAN}  Server stoppen:${NC} ./kill-server.sh"
-echo -e "${CYAN}  Logs anzeigen:${NC} tail -f logs/server-*.log"
-echo -e "${CYAN}  Safe Restart:${NC} ./safe-restart.sh"
+echo -e "${CYAN}  Stoppen:${NC} docker compose down"
+echo -e "${CYAN}  Logs:${NC}   docker compose logs -f"
+echo -e "${CYAN}  Restart:${NC} ./scripts/server/restart-servers.sh"
 
 log "=== Safe Restart Routine erfolgreich abgeschlossen ==="

@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "echo '\n🔧 Starte Entwicklungsserver...\n'",
     "dev": "node --watch ./src/server.js",
-    "start": "node ./src/server.js"
+    "prestart": "echo '\n🚀 Starte Produktionsserver...\n'",
+    "start": "node ./src/server.js",
+    "info": "echo '\n📦 Virgin Backend\n✓ Port: 3000\n✓ Hot-Reload: npm run dev\n✓ Produktion: npm start\n'"
   },
   "dependencies": {
     "cors": "^2.8.5",

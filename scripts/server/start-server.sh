@@ -1,172 +1,64 @@
 #!/bin/bash
 #
-# Server Start Script
+# Server Start Script (Docker Compose)
 # Verwendung: chmod +x start-server.sh && ./start-server.sh
 #
 
 set -e
 
-echo "=== Server Start Script ==="
+echo "=== Server Start (Docker Compose) ==="
 echo "Datum: $(date)"
 echo ""
 
-# Farben für Ausgabe
+# Farben
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Log-Datei
-LOG_DIR="/workspaces/virgin/logs"
+PROJECT_DIR="/workspaces/virgin"
+LOG_DIR="$PROJECT_DIR/logs"
 mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/server-$(date +%Y%m%d-%H%M%S).log"
+LOG_FILE="$LOG_DIR/compose-start-$(date +%Y%m%d-%H%M%S).log"
 
 echo -e "${BLUE}Log-Datei: $LOG_FILE${NC}"
 
-# Funktion zum Loggen
-log() {
-    echo -e "$1" | tee -a "$LOG_FILE"
-}
-
-log "${YELLOW}=== 1. System-Prüfung ===${NC}"
-
-# Prüfe Node.js
-if ! command -v node &> /dev/null; then
-    log "${RED}FEHLER: Node.js ist nicht installiert!${NC}"
-    exit 1
-fi
-log "${GREEN}✓${NC} Node.js Version: $(node --version)"
-
-# Prüfe npm
-if ! command -v npm &> /dev/null; then
-    log "${RED}FEHLER: npm ist nicht installiert!${NC}"
-    exit 1
-fi
-log "${GREEN}✓${NC} npm Version: $(npm --version)"
-
-log "\n${YELLOW}=== 2. Projekt-Prüfung ===${NC}"
-
-# Prüfe ob server.js existiert
-if [ ! -f "/workspaces/virgin/app/server.js" ]; then
-    log "${RED}FEHLER: server.js nicht gefunden!${NC}"
-    exit 1
-fi
-log "${GREEN}✓${NC} server.js gefunden"
-
-# Prüfe package.json
-if [ ! -f "/workspaces/virgin/app/package.json" ]; then
-    log "${RED}FEHLER: package.json nicht gefunden!${NC}"
-    exit 1
-fi
-log "${GREEN}✓${NC} package.json gefunden"
-
-# Zeige package.json Inhalt
-log "\npackage.json Inhalt:"
-cat /workspaces/virgin/app/package.json | tee -a "$LOG_FILE"
-
-log "\n${YELLOW}=== 3. Abhängigkeiten prüfen ===${NC}"
-
-cd /workspaces/virgin/app
-
-# Prüfe app/node_modules
-if [ ! -d "app/node_modules" ]; then
-    log "${YELLOW}⚠${NC} app/node_modules nicht gefunden. Installiere Abhängigkeiten..."
-    npm install 2>&1 | tee -a "$LOG_FILE"
-else
-    log "${GREEN}✓${NC} app/node_modules vorhanden ($(ls app/node_modules | wc -l) Pakete)"
+if ! command -v docker >/dev/null; then
+  echo -e "${RED}✗ Docker ist nicht installiert/verfügbar${NC}"
+  exit 1
 fi
 
-# Prüfe erforderliche Module
-REQUIRED_MODULES=("express" "express-rate-limit")
-for MODULE in "${REQUIRED_MODULES[@]}"; do
-    if [ -d "app/node_modules/$MODULE" ]; then
-        log "${GREEN}✓${NC} $MODULE installiert"
-    else
-        log "${RED}✗${NC} $MODULE fehlt!"
-        log "Installiere $MODULE..."
-        npm install $MODULE 2>&1 | tee -a "$LOG_FILE"
-    fi
-done
+echo -e "${YELLOW}Hinweis:${NC} Die alte app/ Node-Startlogik ist veraltet."
+echo -e "${YELLOW}→${NC} Starte jetzt Backend (3000) und Frontend (8080) via Docker Compose."
 
-log "\n${YELLOW}=== 4. Port-Prüfung ===${NC}"
-
-PORT=${PORT:-3000}
-log "Ziel-Port: $PORT"
-
-if lsof -i :$PORT >/dev/null 2>&1; then
-    log "${RED}✗${NC} Port $PORT ist bereits belegt:"
-    lsof -i :$PORT | tee -a "$LOG_FILE"
-    log "\n${YELLOW}Beende Prozess auf Port $PORT...${NC}"
-    PID=$(lsof -t -i :$PORT)
-    kill -9 $PID 2>/dev/null || true
-    sleep 1
-    log "${GREEN}✓${NC} Port freigegeben"
-else
-    log "${GREEN}✓${NC} Port $PORT ist frei"
-fi
-
-log "\n${YELLOW}=== 5. Verzeichnisstruktur ===${NC}"
-
-# Prüfe erforderliche Verzeichnisse
-REQUIRED_DIRS=("public" "views")
-for DIR in "${REQUIRED_DIRS[@]}"; do
-    if [ -d "/workspaces/virgin/$DIR" ]; then
-        log "${GREEN}✓${NC} $DIR/ vorhanden"
-        log "   Dateien: $(find /workspaces/virgin/$DIR -type f | wc -l)"
-    else
-        log "${YELLOW}⚠${NC} $DIR/ nicht gefunden - erstelle Verzeichnis"
-        mkdir -p "/workspaces/virgin/$DIR"
-    fi
-done
-
-# Prüfe index.html
-if [ -f "/workspaces/virgin/views/index.html" ]; then
-    log "${GREEN}✓${NC} views/index.html vorhanden"
-else
-    log "${YELLOW}⚠${NC} views/index.html nicht gefunden"
-fi
-
-log "\n${YELLOW}=== 6. Umgebungsvariablen ===${NC}"
-log "PORT: ${PORT:-3000}"
-log "NODE_ENV: ${NODE_ENV:-development}"
-log "Working Directory: $(pwd)"
-
-log "\n${YELLOW}=== 7. Server starten ===${NC}"
-
-# Speichere PID für späteres Beenden
-PID_FILE="/workspaces/virgin/app/server.pid"
-
-log "${GREEN}Starte Server...${NC}\n"
-
-# Starte Server im Hintergrund und leite Output um
-nohup node server.js > "$LOG_FILE" 2>&1 &
-SERVER_PID=$!
-
-# Speichere PID
-echo $SERVER_PID > "$PID_FILE"
+pushd "$PROJECT_DIR" >/dev/null
+DOCKER_BUILDKIT=1 docker compose up -d --build 2>&1 | tee -a "$LOG_FILE"
+popd >/dev/null
 
 sleep 2
 
-# Prüfe ob Server läuft
-if ps -p $SERVER_PID > /dev/null; then
-    log "${GREEN}✓ Server erfolgreich gestartet!${NC}"
-    log "  PID: $SERVER_PID"
-    log "  URL: http://localhost:${PORT:-3000}"
-    log "  Health: http://localhost:${PORT:-3000}/healthz"
-    log "  Logs: $LOG_FILE"
-    log "  PID-Datei: $PID_FILE"
-    
-    # Teste Health-Endpoint
-    sleep 1
-    if command -v curl &> /dev/null; then
-        log "\n${YELLOW}Teste Health-Endpoint...${NC}"
-        curl -s http://localhost:${PORT:-3000}/healthz | tee -a "$LOG_FILE" || log "${RED}Health-Check fehlgeschlagen${NC}"
-    fi
-    
-    log "\n${BLUE}Verwende './kill-server.sh' zum Beenden${NC}"
+# Health-Checks
+set +e
+HEALTH_BACK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health)
+HEALTH_FRONT=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+set -e
+
+if [ "$HEALTH_BACK" = "200" ]; then
+  echo -e "${GREEN}✓ Backend erreichbar:${NC} http://localhost:3000/api/health (200)"
 else
-    log "${RED}✗ Server konnte nicht gestartet werden!${NC}"
-    log "Prüfe die Logs: $LOG_FILE"
-    exit 1
+  echo -e "${RED}✗ Backend nicht erreichbar${NC} (Status: $HEALTH_BACK)"
 fi
+
+if [ "$HEALTH_FRONT" = "200" ]; then
+  echo -e "${GREEN}✓ Frontend erreichbar:${NC} http://localhost:8080/ (200)"
+else
+  echo -e "${RED}✗ Frontend nicht erreichbar${NC} (Status: $HEALTH_FRONT)"
+fi
+
+echo ""
+echo -e "${BLUE}URLs:${NC}"
+echo "  Frontend: http://localhost:8080"
+echo "  Backend:  http://localhost:3000"
+echo ""
+echo -e "${GREEN}Fertig.${NC} Mit 'docker compose logs -f' Logs ansehen."

@@ -225,21 +225,18 @@ else
 fi
 
 echo "" | tee -a "$LOG_FILE"
-REQUIRED_FILES=("package.json" "server.js" "start-server.sh" "kill-server.sh")
-for FILE in "${REQUIRED_FILES[@]}"; do
+# Projekt-spezifische Pflichtdateien/-ordner prüfen (neue Struktur)
+BACKEND_FILES=("backend/package.json" "backend/src/server.js")
+for FILE in "${BACKEND_FILES[@]}"; do
     if [ -f "$PROJECT_DIR/$FILE" ]; then
         test_check "$FILE existiert" 0
-        if [ "$FILE" == "package.json" ]; then
-            echo "  Inhalt:" | tee -a "$LOG_FILE"
-            cat "$PROJECT_DIR/$FILE" | tee -a "$LOG_FILE"
-        fi
     else
         test_check "$FILE existiert" 1
     fi
 done
 
 echo "" | tee -a "$LOG_FILE"
-REQUIRED_DIRS=("public" "views" "logs" "app/node_modules")
+REQUIRED_DIRS=("frontend/public" "frontend/views" "backend/public" "logs")
 for DIR in "${REQUIRED_DIRS[@]}"; do
     if [ -d "$PROJECT_DIR/$DIR" ]; then
         FILE_COUNT=$(find "$PROJECT_DIR/$DIR" -type f 2>/dev/null | wc -l)
@@ -255,35 +252,35 @@ section "8. NPM ABHÄNGIGKEITEN"
 
 cd "$PROJECT_DIR"
 
-if [ -f "package.json" ]; then
-    echo "Definierte Abhängigkeiten:" | tee -a "$LOG_FILE"
-    node -e "const pkg = require('./package.json'); console.log(JSON.stringify(pkg.dependencies || {}, null, 2));" 2>/dev/null | tee -a "$LOG_FILE"
-    
+if [ -f "backend/package.json" ]; then
+    echo "Definierte Backend-Abhängigkeiten:" | tee -a "$LOG_FILE"
+    node -e "const pkg = require('./backend/package.json'); console.log(JSON.stringify(pkg.dependencies || {}, null, 2));" 2>/dev/null | tee -a "$LOG_FILE"
+
     echo "" | tee -a "$LOG_FILE"
-    if [ -d "app/node_modules" ]; then
-        INSTALLED=$(ls app/node_modules 2>/dev/null | wc -l)
-        test_check "app/node_modules vorhanden ($INSTALLED Pakete)" 0
-        
+    if [ -d "backend/node_modules" ]; then
+        INSTALLED=$(ls backend/node_modules 2>/dev/null | wc -l)
+        test_check "backend/node_modules vorhanden ($INSTALLED Pakete)" 0
+
         # Prüfe kritische Module
-        CRITICAL_MODULES=("express" "express-rate-limit")
+        CRITICAL_MODULES=("express")
         for MODULE in "${CRITICAL_MODULES[@]}"; do
-            if [ -d "app/node_modules/$MODULE" ]; then
-                VERSION=$(node -e "console.log(require('./app/node_modules/$MODULE/package.json').version)" 2>/dev/null || echo "unknown")
+            if [ -d "backend/node_modules/$MODULE" ]; then
+                VERSION=$(node -e "console.log(require('./backend/node_modules/$MODULE/package.json').version)" 2>/dev/null || echo "unknown")
                 test_check "$MODULE installiert (v$VERSION)" 0
             else
                 test_check "$MODULE installiert" 1
             fi
         done
-        
+
         echo "" | tee -a "$LOG_FILE"
-        echo "Prüfe auf veraltete Pakete:" | tee -a "$LOG_FILE"
-        npm outdated 2>&1 | tee -a "$LOG_FILE" || echo "Alle Pakete aktuell" | tee -a "$LOG_FILE"
-        
+        echo "Prüfe auf veraltete Pakete (Backend):" | tee -a "$LOG_FILE"
+        (cd backend && npm outdated) 2>&1 | tee -a "$LOG_FILE" || echo "Alle Pakete aktuell" | tee -a "$LOG_FILE"
+
         echo "" | tee -a "$LOG_FILE"
-        echo "Prüfe auf Sicherheitslücken:" | tee -a "$LOG_FILE"
-        npm audit 2>&1 | head -20 | tee -a "$LOG_FILE"
+        echo "Prüfe auf Sicherheitslücken (Backend):" | tee -a "$LOG_FILE"
+        (cd backend && npm audit) 2>&1 | head -20 | tee -a "$LOG_FILE"
     else
-        test_check "app/node_modules vorhanden" 1
+        test_check "backend/node_modules vorhanden" 1
     fi
 fi
 
@@ -319,38 +316,23 @@ for SCRIPT in start-server.sh kill-server.sh; do
 done
 
 # ============================================================
-section "11. SERVER-TEST (falls läuft)"
+section "11. SERVER-TEST (Docker/Ports)"
 # ============================================================
 
-PID_FILE="$PROJECT_DIR/server.pid"
-if [ -f "$PID_FILE" ]; then
-    SERVER_PID=$(cat "$PID_FILE")
-    if ps -p $SERVER_PID > /dev/null; then
-        test_check "Server läuft (PID: $SERVER_PID)" 0
-        
-        echo "" | tee -a "$LOG_FILE"
-        echo "Teste Server-Endpoints:" | tee -a "$LOG_FILE"
-        
-        # Test Root
-        if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|404"; then
-            test_check "Root-Endpoint erreichbar" 0
-        else
-            test_check "Root-Endpoint erreichbar" 1
-        fi
-        
-        # Test Health
-        HEALTH_RESPONSE=$(curl -s http://localhost:3000/healthz)
-        if echo "$HEALTH_RESPONSE" | grep -q "ok"; then
-            test_check "Health-Endpoint funktioniert" 0
-            echo "  Response: $HEALTH_RESPONSE" | tee -a "$LOG_FILE"
-        else
-            test_check "Health-Endpoint funktioniert" 1
-        fi
-    else
-        test_warning "PID-Datei vorhanden, aber Prozess läuft nicht"
-    fi
+# Teste Backend via Port 3000
+HTTP_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health || echo 000)
+if [ "$HTTP_HEALTH" = "200" ]; then
+    test_check "Backend Health (/api/health) 200" 0
 else
-    echo "Server läuft nicht (keine PID-Datei)" | tee -a "$LOG_FILE"
+    test_check "Backend Health (/api/health) erreichbar" 1
+fi
+
+# Teste Frontend via Port 8080
+HTTP_FRONT=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ || echo 000)
+if [ "$HTTP_FRONT" = "200" ]; then
+    test_check "Frontend Root (/) 200" 0
+else
+    test_check "Frontend Root (/) erreichbar" 1
 fi
 
 # ============================================================

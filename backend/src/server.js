@@ -55,5 +55,23 @@ app.get('*', (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server läuft auf http://localhost:${PORT}`);
+  console.log('\n' + '='.repeat(60));
+  console.log('🚀 Virgin Server gestartet');
+  console.log('='.repeat(60));
+  console.log(`📍 Lokal:     http://localhost:${PORT}`);
+  console.log(`🌐 Netzwerk:  http://0.0.0.0:${PORT}`);
+  console.log(`📂 Statisch:  ${path.join(__dirname, '..', 'public')}`);
+  console.log(`🔧 Modus:     ${process.env.NODE_ENV || 'development'}`);
+  console.log('='.repeat(60));
+  console.log('📋 Verfügbare Endpoints:');
+  console.log('  GET  /api/hello');
+  console.log('  GET  /api/health');
+  console.log('  POST /api/session/end');
+  console.log('  POST /api/session/audit');
+  console.log('='.repeat(60));
+  console.log('💡 Tipps:');
+  console.log(`  • Browser öffnen: $BROWSER http://localhost:${PORT}`);
+  console.log('  • Hot-Reload aktiv (--watch)');
+  console.log('  • Ctrl+C zum Beenden');
+  console.log('='.repeat(60) + '\n');
 });

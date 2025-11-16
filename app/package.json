@@ -4,12 +4,12 @@
   "description": "Web server for creating websites",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "server:start": "./start-server.sh",
-    "server:kill": "./kill-server.sh",
-    "server:restart": "./kill-server.sh && ./start-server.sh",
-    "server:logs": "tail -f logs/server-*.log"
+    "start": "echo 'app/ ist veraltet. Bitte nutzen: docker compose up -d' && exit 1",
+    "dev": "echo 'app/ ist veraltet. Bitte nutzen: docker compose up -d' && exit 1",
+    "server:start": "scripts/server/start-server.sh",
+    "server:kill": "scripts/server/kill-server.sh",
+    "server:restart": "scripts/server/restart-servers.sh",
+    "server:logs": "docker compose logs -f"
   },
   "keywords": [
     "web",
