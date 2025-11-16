@@ -30,6 +30,7 @@ Direktaufrufe:
 ```bash
 npm run dev      # Entwicklung mit Hot-Reload
 npm start        # Start (Standardport 3000)
+npm test         # Backend-Tests (Node built-in)
 npm run info     # Projekt-Info anzeigen
 ```
 
