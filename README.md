@@ -76,3 +76,7 @@ curl http://localhost:3000/api/health
 - Hot-Reload: Änderungen in `/src` und `/public` werden automatisch erkannt
 - Logs: Morgan middleware zeigt alle Requests
 - Session-Store: In-Memory (flüchtig, nur für Dev)
+
+## Weitere Infos
+
+- CHANGELOG: [CHANGELOG.md](CHANGELOG.md)
