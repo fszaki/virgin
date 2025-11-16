@@ -240,11 +240,13 @@ Führe das Setup-Script aus:
 ```
 
 Wähle einen Modus:
+
 - **Vollautomatisch**: Server startet bei jedem Terminal-Start
 - **Einmalig**: Server startet nur einmal nach Container-Neustart
 - **Manuell mit Hinweis**: Zeigt nur eine Erinnerung an
 
 Nach dem Setup:
+
 ```bash
 # Aktiviere die Konfiguration
 source ~/.bashrc

@@ -18,6 +18,12 @@ const pkg = require('./package.json');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Server statistics
+const serverStats = {
+    startTime: new Date().toISOString(),
+    requestCount: 0
+};
+
 // Startup-Log
 console.log('='.repeat(60));
 console.log('Virgin Project Server');
@@ -35,6 +41,12 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
+// Middleware to count requests
+app.use((req, res, next) => {
+    serverStats.requestCount++;
+    next();
+});
+
 // Middleware to parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,6 +57,40 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Main route - serve the index page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+// Landing page
+app.get('/landing', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'landing.html'));
+});
+
+// Statistics page
+app.get('/statistik', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'statistik.html'));
+});
+
+// API endpoint for statistics
+app.get('/api/stats', (req, res) => {
+    const memUsage = process.memoryUsage();
+    res.status(200).json({
+        status: 'ok',
+        uptime: process.uptime(),
+        startTime: serverStats.startTime,
+        requestCount: serverStats.requestCount,
+        version: pkg.version,
+        nodeVersion: process.version,
+        platform: process.platform,
+        arch: process.arch,
+        pid: process.pid,
+        cwd: process.cwd(),
+        memoryUsage: {
+            rss: memUsage.rss,
+            heapTotal: memUsage.heapTotal,
+            heapUsed: memUsage.heapUsed,
+            external: memUsage.external
+        },
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Health endpoint

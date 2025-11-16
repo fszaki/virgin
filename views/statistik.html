@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virgin - Server Statistik</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            padding: 0;
+            background: #f8f9fa;
+        }
+        
+        nav {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 0;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        nav a:hover {
+            color: #764ba2;
+        }
+        
+        .stats-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .stats-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .stats-header h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stats-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-description {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        
+        .chart-container h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .info-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .info-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: block;
+            margin: 30px auto;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/landing">Landingpage</a></li>
+            <li><a href="/statistik">Statistik</a></li>
+        </ul>
+    </nav>
+
+    <div class="stats-container">
+        <div class="stats-header">
+            <h1>📊 Server Statistik</h1>
+            <p>Echtzeit-Überwachung Ihres Virgin Web Servers</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-label">Uptime</div>
+                <div class="stat-value" id="uptime">--</div>
+                <div class="stat-description">Zeit seit Start</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💾</div>
+                <div class="stat-label">Memory Usage</div>
+                <div class="stat-value" id="memory">--</div>
+                <div class="stat-description">Speichernutzung</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🔄</div>
+                <div class="stat-label">Requests</div>
+                <div class="stat-value" id="requests">--</div>
+                <div class="stat-description">Gesamt</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Status</div>
+                <div class="stat-value" id="status">
+                    <span class="status-badge status-online">ONLINE</span>
+                </div>
+                <div class="stat-description">Server läuft</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>System-Informationen</h2>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Wert</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Server Version</strong></td>
+                        <td id="version">--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Node.js Version</strong></td>
+                        <td id="node-version">--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Plattform</strong></td>
+                        <td id="platform">--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Architektur</strong></td>
+                        <td id="arch">--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prozess ID</strong></td>
+                        <td id="pid">--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Arbeitsverzeichnis</strong></td>
+                        <td id="cwd">--</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Startzeit</strong></td>
+                        <td id="starttime">--</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button class="refresh-btn" onclick="loadStats()">🔄 Aktualisieren</button>
+        
+        <div class="last-updated">
+            Letzte Aktualisierung: <span id="last-updated">--</span>
+        </div>
+    </div>
+
+    <footer style="background: white; padding: 40px 30px; text-align: center; border-top: 1px solid #e9ecef; margin-top: 40px;">
+        <p style="color: #666; margin-bottom: 10px;">&copy; 2025 Virgin Web Server</p>
+        <p style="color: #999; font-size: 0.9em;">
+            <a href="/" style="color: #667eea; text-decoration: none;">Home</a> | 
+            <a href="/landing" style="color: #667eea; text-decoration: none;">Landingpage</a> | 
+            <a href="/healthz" style="color: #667eea; text-decoration: none;">Health Check</a>
+        </p>
+    </footer>
+
+    <script>
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            if (days > 0) {
+                return `${days}d ${hours}h ${minutes}m`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+        
+        function formatBytes(bytes) {
+            const mb = (bytes / 1024 / 1024).toFixed(2);
+            return `${mb} MB`;
+        }
+        
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString('de-DE');
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                // Update stat cards
+                document.getElementById('uptime').textContent = formatUptime(data.uptime);
+                document.getElementById('memory').textContent = formatBytes(data.memoryUsage.heapUsed);
+                document.getElementById('requests').textContent = data.requestCount || 'N/A';
+                
+                // Update info table
+                document.getElementById('version').textContent = data.version;
+                document.getElementById('node-version').textContent = data.nodeVersion;
+                document.getElementById('platform').textContent = data.platform;
+                document.getElementById('arch').textContent = data.arch;
+                document.getElementById('pid').textContent = data.pid;
+                document.getElementById('cwd').textContent = data.cwd;
+                document.getElementById('starttime').textContent = formatDate(data.startTime);
+                
+                // Update last updated time
+                document.getElementById('last-updated').textContent = new Date().toLocaleString('de-DE');
+            } catch (error) {
+                console.error('Fehler beim Laden der Statistiken:', error);
+                document.getElementById('status').innerHTML = '<span class="status-badge" style="background: #f8d7da; color: #721c24;">FEHLER</span>';
+            }
+        }
+        
+        // Load stats on page load
+        loadStats();
+        
+        // Auto-refresh every 5 seconds
+        setInterval(loadStats, 5000);
+    </script>
+</body>
+</html>

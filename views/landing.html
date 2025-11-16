@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virgin - Landingpage</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 30px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .hero p {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 60px 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .stats-section {
+            background: #f8f9fa;
+            padding: 60px 30px;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 40px auto 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        nav {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 0;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        nav a:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body style="padding: 0; background: #f8f9fa;">
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/landing">Landingpage</a></li>
+            <li><a href="/statistik">Statistik</a></li>
+        </ul>
+    </nav>
+
+    <div class="hero">
+        <h1>🚀 Virgin Web Server</h1>
+        <p>Moderner, schneller und zuverlässiger Web-Server für Ihre Projekte</p>
+        <div class="cta-buttons">
+            <a href="/" class="btn btn-primary">Jetzt starten</a>
+            <a href="/statistik" class="btn btn-secondary">Server-Statistik</a>
+        </div>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Blitzschnell</h3>
+            <p>Optimiert für maximale Performance mit Express.js und modernem Node.js</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Sicher</h3>
+            <p>Integriertes Rate Limiting und Best Practices für Web-Sicherheit</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Überwachung</h3>
+            <p>Health-Check Endpoint und detaillierte Server-Statistiken</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3>Anpassbar</h3>
+            <p>Einfach zu erweitern und an Ihre Bedürfnisse anzupassen</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Responsiv</h3>
+            <p>Funktioniert perfekt auf allen Geräten und Bildschirmgrößen</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🛠️</div>
+            <h3>Entwicklerfreundlich</h3>
+            <p>Klare Struktur und umfangreiche Hilfsskripte für einfache Verwaltung</p>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2 style="font-size: 2.5em; color: #667eea; margin-bottom: 20px;">Warum Virgin?</h2>
+        <p style="font-size: 1.2em; color: #666; max-width: 800px; margin: 0 auto 40px;">
+            Ein moderner Web-Server mit allem, was Sie brauchen
+        </p>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Open Source</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">⚡</div>
+                <div class="stat-label">Express.js</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">🚀</div>
+                <div class="stat-label">Production Ready</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">MIT</div>
+                <div class="stat-label">Lizenz</div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="background: white; padding: 40px 30px; text-align: center; border-top: 1px solid #e9ecef;">
+        <p style="color: #666; margin-bottom: 10px;">&copy; 2025 Virgin Web Server</p>
+        <p style="color: #999; font-size: 0.9em;">
+            <a href="/" style="color: #667eea; text-decoration: none;">Home</a> | 
+            <a href="/statistik" style="color: #667eea; text-decoration: none;">Statistik</a> | 
+            <a href="/healthz" style="color: #667eea; text-decoration: none;">Health Check</a>
+        </p>
+    </footer>
+</body>
+</html>
