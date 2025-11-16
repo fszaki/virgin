@@ -4,8 +4,9 @@
   "description": "Web server for creating websites",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
+    "start": "bash bin/start.sh",
+    "dev": "node --watch server.js",
+    "open": "node -e \"const p=process.env.PORT||3000; const url='http://localhost:'+p; console.log('Opening', url); if(process.env.BROWSER){ require('child_process').spawn(process.env.BROWSER,[url],{stdio:'inherit'}); } else { console.log('Set $BROWSER to auto-open in host browser.'); }\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
