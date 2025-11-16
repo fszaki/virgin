@@ -32,6 +32,7 @@ Ein modernes Express.js Web-Server-Projekt mit vollständiger Entwicklungsumgebu
   - [❓ Troubleshooting](#-troubleshooting)
   - [📜 Lizenz](#-lizenz)
   - [🔄 Migration](#-migration)
+  - [📝 Changelog](#-changelog)
 
 ---
 
@@ -281,3 +282,9 @@ Routenübersicht nach Migration:
 - `GET /landing` → `web/views/landing.html`
 - `GET /statistik` → `web/views/statistik.html`
 - `GET /ui/` → Legacy-Backend-UI (`backend/public/*`)
+
+---
+
+## 📝 Changelog
+
+Siehe [CHANGELOG.md](../CHANGELOG.md) für alle Änderungen.
