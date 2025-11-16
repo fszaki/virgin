@@ -239,7 +239,7 @@ for FILE in "${REQUIRED_FILES[@]}"; do
 done
 
 echo "" | tee -a "$LOG_FILE"
-REQUIRED_DIRS=("public" "views" "logs" "node_modules")
+REQUIRED_DIRS=("public" "views" "logs" "app/node_modules")
 for DIR in "${REQUIRED_DIRS[@]}"; do
     if [ -d "$PROJECT_DIR/$DIR" ]; then
         FILE_COUNT=$(find "$PROJECT_DIR/$DIR" -type f 2>/dev/null | wc -l)
@@ -260,15 +260,15 @@ if [ -f "package.json" ]; then
     node -e "const pkg = require('./package.json'); console.log(JSON.stringify(pkg.dependencies || {}, null, 2));" 2>/dev/null | tee -a "$LOG_FILE"
     
     echo "" | tee -a "$LOG_FILE"
-    if [ -d "node_modules" ]; then
-        INSTALLED=$(ls node_modules 2>/dev/null | wc -l)
-        test_check "node_modules vorhanden ($INSTALLED Pakete)" 0
+    if [ -d "app/node_modules" ]; then
+        INSTALLED=$(ls app/node_modules 2>/dev/null | wc -l)
+        test_check "app/node_modules vorhanden ($INSTALLED Pakete)" 0
         
         # Prüfe kritische Module
         CRITICAL_MODULES=("express" "express-rate-limit")
         for MODULE in "${CRITICAL_MODULES[@]}"; do
-            if [ -d "node_modules/$MODULE" ]; then
-                VERSION=$(node -e "console.log(require('./node_modules/$MODULE/package.json').version)" 2>/dev/null || echo "unknown")
+            if [ -d "app/node_modules/$MODULE" ]; then
+                VERSION=$(node -e "console.log(require('./app/node_modules/$MODULE/package.json').version)" 2>/dev/null || echo "unknown")
                 test_check "$MODULE installiert (v$VERSION)" 0
             else
                 test_check "$MODULE installiert" 1
@@ -283,7 +283,7 @@ if [ -f "package.json" ]; then
         echo "Prüfe auf Sicherheitslücken:" | tee -a "$LOG_FILE"
         npm audit 2>&1 | head -20 | tee -a "$LOG_FILE"
     else
-        test_check "node_modules vorhanden" 1
+        test_check "app/node_modules vorhanden" 1
     fi
 fi
 

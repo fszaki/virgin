@@ -47,6 +47,7 @@ cat >> "$BASHRC" << 'EOF'
 alias srv-start='cd /workspaces/virgin && ./start-server.sh'
 alias srv-stop='cd /workspaces/virgin && ./kill-server.sh'
 alias srv-restart='cd /workspaces/virgin && ./kill-server.sh && ./start-server.sh'
+alias srv-safe-restart='cd /workspaces/virgin && ./safe-restart.sh'
 alias srv-logs='tail -f /workspaces/virgin/logs/server-*.log'
 alias srv-test='cd /workspaces/virgin && ./test-environment.sh'
 alias srv-status='lsof -i :3000 || echo "Server läuft nicht"'
@@ -85,12 +86,13 @@ echo ""
 echo "Verfügbare Aliases:"
 echo ""
 echo -e "${BLUE}Server Management:${NC}"
-echo "  srv-start      - Server starten"
-echo "  srv-stop       - Server beenden"
-echo "  srv-restart    - Server neu starten"
-echo "  srv-logs       - Logs live anzeigen"
-echo "  srv-test       - Umgebung testen"
-echo "  srv-status     - Server-Status prüfen"
+echo "  srv-start       - Server starten"
+echo "  srv-stop        - Server beenden"
+echo "  srv-restart     - Server neu starten"
+echo "  srv-safe-restart - Abgesicherter Neustart mit Validierung"
+echo "  srv-logs        - Logs live anzeigen"
+echo "  srv-test        - Umgebung testen"
+echo "  srv-status      - Server-Status prüfen"
 echo ""
 echo -e "${BLUE}Navigation:${NC}"
 echo "  virgin / v     - Zu /workspaces/virgin wechseln"

@@ -48,14 +48,14 @@ log "${GREEN}✓${NC} npm Version: $(npm --version)"
 log "\n${YELLOW}=== 2. Projekt-Prüfung ===${NC}"
 
 # Prüfe ob server.js existiert
-if [ ! -f "/workspaces/virgin/server.js" ]; then
+if [ ! -f "/workspaces/virgin/app/server.js" ]; then
     log "${RED}FEHLER: server.js nicht gefunden!${NC}"
     exit 1
 fi
 log "${GREEN}✓${NC} server.js gefunden"
 
 # Prüfe package.json
-if [ ! -f "/workspaces/virgin/package.json" ]; then
+if [ ! -f "/workspaces/virgin/app/package.json" ]; then
     log "${RED}FEHLER: package.json nicht gefunden!${NC}"
     exit 1
 fi
@@ -63,24 +63,24 @@ log "${GREEN}✓${NC} package.json gefunden"
 
 # Zeige package.json Inhalt
 log "\npackage.json Inhalt:"
-cat /workspaces/virgin/package.json | tee -a "$LOG_FILE"
+cat /workspaces/virgin/app/package.json | tee -a "$LOG_FILE"
 
 log "\n${YELLOW}=== 3. Abhängigkeiten prüfen ===${NC}"
 
-cd /workspaces/virgin
+cd /workspaces/virgin/app
 
-# Prüfe node_modules
-if [ ! -d "node_modules" ]; then
-    log "${YELLOW}⚠${NC} node_modules nicht gefunden. Installiere Abhängigkeiten..."
+# Prüfe app/node_modules
+if [ ! -d "app/node_modules" ]; then
+    log "${YELLOW}⚠${NC} app/node_modules nicht gefunden. Installiere Abhängigkeiten..."
     npm install 2>&1 | tee -a "$LOG_FILE"
 else
-    log "${GREEN}✓${NC} node_modules vorhanden ($(ls node_modules | wc -l) Pakete)"
+    log "${GREEN}✓${NC} app/node_modules vorhanden ($(ls app/node_modules | wc -l) Pakete)"
 fi
 
 # Prüfe erforderliche Module
 REQUIRED_MODULES=("express" "express-rate-limit")
 for MODULE in "${REQUIRED_MODULES[@]}"; do
-    if [ -d "node_modules/$MODULE" ]; then
+    if [ -d "app/node_modules/$MODULE" ]; then
         log "${GREEN}✓${NC} $MODULE installiert"
     else
         log "${RED}✗${NC} $MODULE fehlt!"
@@ -135,7 +135,7 @@ log "Working Directory: $(pwd)"
 log "\n${YELLOW}=== 7. Server starten ===${NC}"
 
 # Speichere PID für späteres Beenden
-PID_FILE="/workspaces/virgin/server.pid"
+PID_FILE="/workspaces/virgin/app/server.pid"
 
 log "${GREEN}Starte Server...${NC}\n"
 

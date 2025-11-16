@@ -1,227 +1,69 @@
-# 🌟 Virgin Project
+# Virgin Project
 
-Ein modernes Express.js Web-Server-Projekt mit vollständiger Entwicklungsumgebung.
-
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/express-4.x-blue.svg)](https://expressjs.com/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-## 📚 Inhaltsverzeichnis
-
-- [Übersicht](#übersicht)
-- [Quick Start](#quick-start)
-- [Projektstruktur](#projektstruktur)
-- [Installation](#installation)
-- [Verwendung](#verwendung)
-- [Scripts](#scripts)
-- [Konfiguration](#konfiguration)
-- [Entwicklung](#entwicklung)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-
----
-
-## 🎯 Übersicht
-
-Virgin Project ist ein vollständig konfiguriertes Express.js Server-Template mit:
-
-- ✅ Express.js Web-Server
-- ✅ Rate Limiting
-- ✅ Statische Datei-Bereitstellung
-- ✅ Health-Check Endpoint
-- ✅ Umfassendes Logging
-- ✅ Automatisierte Scripts
-- ✅ Dev Container Support
-- ✅ Strukturierte Projekt-Organisation
-
----
+Modern web server project with Express.js
 
 ## 🚀 Quick Start
 
-**Für sofortigen Start siehe:** [QUICK_START.md](QUICK_START.md)
-
 ```bash
-# 1. In Projektverzeichnis wechseln
-cd /workspaces/virgin
+# Start server
+./scripts/server/start-server.sh
 
-# 2. Abhängigkeiten installieren
-npm install
+# Stop server  
+./scripts/server/kill-server.sh
 
-# 3. Server starten
-./start-server.sh
-
-# 4. Browser öffnen
-"$BROWSER" http://localhost:3000
+# Safe restart
+./scripts/server/safe-restart.sh
 ```
 
----
-
-## 📁 Projektstruktur
+## 📁 Project Structure
 
 ```
 virgin/
-├── server.js           # Haupt-Server-Datei
-├── package.json        # Node.js Projekt-Konfiguration
-├── views/             # HTML-Seiten
-│   └── index.html     # Startseite
-├── public/            # Statische Dateien (CSS, JS, Bilder)
-│   └── styles.css     # Stylesheet
-└── README.md          # Diese Datei
+├── index.html          # Main entry point (public website)
+├── app/                # Application code
+│   ├── server.js
+│   ├── package.json
+│   └── node_modules/
+├── scripts/            # Management scripts
+│   ├── server/        # Server management
+│   ├── setup/         # Configuration
+│   └── utils/         # Utilities
+├── docs/              # Documentation
+├── views/             # HTML templates
+├── public/            # Static assets
+└── logs/              # Log files
 ```
 
----
+## 📚 Documentation
 
-## 🔧 Installation
+- [docs/README.main.md](docs/README.main.md) - Full documentation
+- [docs/QUICK_START.md](docs/QUICK_START.md) - Getting started
+- [docs/STRUCTURE.md](docs/STRUCTURE.md) - Project structure
+- [docs/SAFE_RESTART.md](docs/SAFE_RESTART.md) - Safe restart guide
 
-1. Repository klonen:
-```bash
-git clone https://github.com/fszaki/virgin.git
-cd virgin
-```
+## 🛠️ Available Scripts
 
-2. Abhängigkeiten installieren:
-```bash
-npm install
-```
+### Server Management
+- `scripts/server/start-server.sh` - Start server
+- `scripts/server/kill-server.sh` - Stop server
+- `scripts/server/restart-servers.sh` - Quick restart
+- `scripts/server/safe-restart.sh` - Safe restart (5-step process)
 
----
+### Setup
+- `scripts/setup/setup-structure.sh` - Create project structure
+- `scripts/setup/setup-aliases.sh` - Setup bash aliases
+- `scripts/setup/setup-autostart.sh` - Configure autostart
 
-## 🚀 Verwendung
+### Utilities
+- `scripts/utils/test-environment.sh` - Test environment
+- `scripts/utils/show-structure.sh` - Show structure
 
-### Server starten
+## ⚙️ Configuration
 
-```bash
-npm start
-```
+Server runs on: `http://localhost:3000`
 
-Der Server läuft standardmäßig auf `http://localhost:3000`
+Health check: `http://localhost:3000/healthz`
 
-Hinweise zur Startroutine:
-- Prüft und installiert Abhängigkeiten automatisch (`npm ci`/`npm install`).
-- Nutzt `PORT` falls gesetzt; sonst wird ein freier Port ab `3000` gesucht.
-- Startet den Server im Vordergrund.
+## 📄 License
 
-Optional Browser öffnen (falls `$BROWSER` gesetzt):
-
-```bash
-npm run open
-```
-
-Oder automatisch beim Start (wenn `$BROWSER` verfügbar):
-
-```bash
-AUTO_OPEN=1 npm start
-```
-
-### Port ändern
-
-Sie können den Port über eine Umgebungsvariable ändern:
-
-```bash
-PORT=8080 npm start
-```
-
----
-
-## 🛠️ Scripts
-
-- `npm start`: Starte den Server
-- `npm run dev`: Starte den Server im Entwicklungsmodus
-- `npm test`: Führe die Tests aus
-- `npm run lint`: Führe den Linter aus
-
----
-
-## ⚙️ Konfiguration
-
-Umgebungsvariablen für die Konfiguration:
-
-- `PORT`: Der Port, auf dem der Server läuft (Standard: `3000`)
-- `NODE_ENV`: Die Umgebung, in der die Anwendung läuft (z.B. `development`, `production`)
-
-Beispiel `.env` Datei:
-
-```
-PORT=3000
-NODE_ENV=development
-```
-
----
-
-## 🧪 Entwicklung
-
-### Live-Reload (Entwicklung)
-
-Nutze den integrierten Node Watch-Mode:
-
-```bash
-npm run dev
-```
-
-### Neue Seiten hinzufügen
-
-1. Erstellen Sie HTML-Dateien im `views/` Verzeichnis
-2. Fügen Sie entsprechende Routen in `server.js` hinzu
-
-### Health-Check
-
-Der Server stellt einen Health-Endpoint bereit:
-
-```text
-GET /healthz
-```
-
-Antwort (Beispiel):
-
-```json
-{
-	"status": "ok",
-	"uptime": 12.34,
-	"timestamp": "2025-11-16T12:34:56.789Z",
-	"version": "1.0.0"
-}
-```
-
-### Statische Dateien
-
-Alle Dateien im `public/` Verzeichnis sind über den Root-Pfad erreichbar:
-- `public/styles.css` → `http://localhost:3000/styles.css`
-- `public/script.js` → `http://localhost:3000/script.js`
-
----
-
-## 🧪 Testing
-
-Um die Tests auszuführen, verwenden Sie:
-
-```bash
-npm test
-```
-
----
-
-## 🚀 Deployment
-
-Für das Deployment in Produktionsumgebungen:
-
-1. Setzen Sie die Umgebungsvariablen für die Produktion.
-2. Führen Sie `npm run build` aus, um die Anwendung zu erstellen.
-3. Starten Sie die Anwendung mit `npm start`.
-
----
-
-## ❓ Troubleshooting
-
-Häufige Probleme und Lösungen:
-
-- **Problem:** Der Server startet nicht.
-  - **Lösung:** Stellen Sie sicher, dass alle Abhängigkeiten installiert sind und der richtige Node.js Version verwendet wird.
-- **Problem:** Port ist bereits belegt.
-  - **Lösung:** Ändern Sie den Port in der `.env` Datei oder beenden Sie den Prozess, der den Port verwendet.
-
----
-
-## 📜 Lizenz
-
-MIT License - siehe [LICENSE](LICENSE) Datei für Details
+MIT License - see [docs/LICENSE](docs/LICENSE)

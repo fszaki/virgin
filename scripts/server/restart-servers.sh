@@ -97,13 +97,13 @@ check_dependencies() {
         log "\nPrüfe: $DIR"
         cd "$DIR"
         
-        if [ ! -d "node_modules" ]; then
-            log "${RED}node_modules Ordner fehlt!${NC}"
+        if [ ! -d "app/node_modules" ]; then
+            log "${RED}app/node_modules Ordner fehlt!${NC}"
             log "Installiere Abhängigkeiten..."
             npm install 2>&1 | tee -a "$LOG_FILE"
         else
-            log "${GREEN}node_modules vorhanden${NC}"
-            log "Anzahl installierter Pakete: $(ls node_modules | wc -l)"
+            log "${GREEN}app/node_modules vorhanden${NC}"
+            log "Anzahl installierter Pakete: $(ls app/node_modules | wc -l)"
         fi
         
         # Prüfe package.json auf Fehler
@@ -122,7 +122,7 @@ done
 log "\n${YELLOW}=== 6. Starte Server mit Logging ===${NC}"
 
 # Zurück zum Hauptverzeichnis
-cd /workspaces/virgin
+cd /workspaces/virgin/app
 
 # Starte Server (anpassen je nach Projekt)
 if [ -f "package.json" ]; then

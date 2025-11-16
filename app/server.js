@@ -51,22 +51,22 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from the 'public' directory (one level up)
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Main route - serve the index page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'views', 'index.html'));
 });
 
 // Landing page
 app.get('/landing', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'landing.html'));
+    res.sendFile(path.join(__dirname, '..', 'views', 'landing.html'));
 });
 
 // Statistics page
 app.get('/statistik', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'statistik.html'));
+    res.sendFile(path.join(__dirname, '..', 'views', 'statistik.html'));
 });
 
 // API endpoint for statistics

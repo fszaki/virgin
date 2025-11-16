@@ -1,22 +1,42 @@
-# Dependencies
-node_modules/
-
 # Logs
-logs/
-*.log
-npm-debug.log*
+logs/*.log
+logs/archive/*.log
+!logs/.gitkeep
+!logs/archive/.gitkeep
 
-# Environment variables
+# Runtime
+*.pid
+app/server.pid
+
+# Dependencies
+app/node_modules/
+app/package-lock.json
+
+# Environment
 .env
 .env.local
+.env.*.local
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE files
-.vscode/
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/mcp.json
 .idea/
 *.swp
 *.swo
 *~
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Build
+dist/
+build/
+*.tgz
+
+# Test coverage
+coverage/
+.nyc_output/

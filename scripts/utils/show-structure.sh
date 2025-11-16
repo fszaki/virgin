@@ -22,7 +22,7 @@ echo ""
 # Methode 1: Mit tree (wenn verfügbar)
 if command -v tree &> /dev/null; then
     echo -e "${GREEN}=== Detaillierte Ansicht (tree) ===${NC}"
-    tree -L 3 -a -I 'node_modules|.git' "$PROJECT_ROOT"
+    tree -L 3 -a -I 'app/node_modules|.git' "$PROJECT_ROOT"
     echo ""
 fi
 
@@ -74,16 +74,16 @@ echo "│   ├── 📄 test-environment.sh"
 echo "│   └── 📄 show-structure.sh"
 echo "├── 📁 docs/ ($(count_files docs) Dateien) - Dokumentation"
 echo "├── 📁 data/ - Daten-Dateien"
-echo "└── 📁 node_modules/ ($(count_files node_modules 2>/dev/null || echo 0) Dateien) - NPM Pakete"
+echo "└── 📁 app/node_modules/ ($(count_files app/node_modules 2>/dev/null || echo 0) Dateien) - NPM Pakete"
 
 echo ""
 echo -e "${YELLOW}=== Statistiken ===${NC}"
-echo "Gesamt Verzeichnisse: $(find . -type d -not -path '*/node_modules/*' -not -path '*/.git/*' | wc -l)"
-echo "Gesamt Dateien: $(find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' | wc -l)"
+echo "Gesamt Verzeichnisse: $(find . -type d -not -path '*/app/node_modules/*' -not -path '*/.git/*' | wc -l)"
+echo "Gesamt Dateien: $(find . -type f -not -path '*/app/node_modules/*' -not -path '*/.git/*' | wc -l)"
 echo "Projekt-Größe: $(du -sh . 2>/dev/null | cut -f1)"
 
-if [ -d "node_modules" ]; then
-    echo "node_modules Größe: $(du -sh node_modules 2>/dev/null | cut -f1)"
+if [ -d "app/node_modules" ]; then
+    echo "app/node_modules Größe: $(du -sh app/node_modules 2>/dev/null | cut -f1)"
 fi
 
 echo ""

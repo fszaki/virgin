@@ -10,7 +10,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-PID_FILE="/workspaces/virgin/server.pid"
+PID_FILE="/workspaces/virgin/app/server.pid"
 
 echo -e "${YELLOW}=== 1. Suche laufende Server ===${NC}"
 
