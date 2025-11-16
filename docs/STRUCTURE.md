@@ -111,6 +111,7 @@ readlink start-server.sh
 ## 📋 Datei-Kategorien
 
 ### Core-Dateien (Root)
+
 - `server.js` - Haupt-Server
 - `package.json` - Node.js Config
 - `LICENSE` - MIT Lizenz
@@ -120,6 +121,7 @@ readlink start-server.sh
 ### Scripts (`scripts/`)
 
 #### Server-Management (`scripts/server/`)
+
 | Datei | Zweck | Besonderheiten |
 |-------|-------|----------------|
 | `start-server.sh` | Server starten | Vollständige Validierung |
@@ -128,6 +130,7 @@ readlink start-server.sh
 | `safe-restart.sh` | Sicherer Neustart | 5-Schritt-Prozess, interaktiv |
 
 #### Setup (`scripts/setup/`)
+
 | Datei | Zweck | Wann verwenden |
 |-------|-------|----------------|
 | `setup-structure.sh` | Verzeichnisse erstellen | Einmalig bei Setup |
@@ -135,6 +138,7 @@ readlink start-server.sh
 | `setup-autostart.sh` | Autostart config | Optional, für Convenience |
 
 #### Utils (`scripts/utils/`)
+
 | Datei | Zweck | Verwendung |
 |-------|-------|------------|
 | `test-environment.sh` | Umgebung prüfen | Bei Problemen |
@@ -151,11 +155,13 @@ readlink start-server.sh
 ### Web-Dateien
 
 #### Views (`views/`)
+
 - HTML-Templates
 - Server-seitig gerendert
 - Express Template Engine
 
 #### Public (`public/`)
+
 - Statische Assets
 - Direkt ausgeliefert
 - CSS, JS, Bilder
@@ -171,6 +177,7 @@ logs/
 ```
 
 **Rotation:**
+
 - Automatisch bei jedem Start
 - Zeitstempel im Namen
 - Archiv für alte Logs
@@ -180,6 +187,7 @@ logs/
 ## 🎨 Namenskonventionen
 
 ### Scripts
+
 - **Format:** `action-object.sh`
 - **Beispiele:**
   - `start-server.sh` (Start den Server)
@@ -187,12 +195,14 @@ logs/
   - `setup-aliases.sh` (Setup die Aliases)
 
 ### Logs
+
 - **Format:** `type-YYYYMMDD-HHMMSS.log`
 - **Beispiele:**
   - `server-20251116-130822.log`
   - `safe-restart-20251116-130744.log`
 
 ### Directories
+
 - **Kleinbuchstaben**
 - **Plural für Collections** (`scripts/`, `docs/`, `logs/`)
 - **Singular für Kategorien** (`server/`, `setup/`, `utils/`)
@@ -204,6 +214,7 @@ logs/
 ### Häufige Aufgaben
 
 #### Script finden
+
 ```bash
 # Liste alle Scripts
 ls scripts/*/*.sh
@@ -213,6 +224,7 @@ find scripts/ -name "*server*"
 ```
 
 #### Dokumentation finden
+
 ```bash
 # Liste alle Docs
 ls docs/
@@ -222,6 +234,7 @@ grep -r "keyword" docs/
 ```
 
 #### Logs finden
+
 ```bash
 # Neueste Logs
 ls -lt logs/*.log | head -5
@@ -253,6 +266,7 @@ find views/ -name "*.html" | wc -l
 ## 🚀 Best Practices
 
 ### 1. Verwende Symlinks
+
 ```bash
 # Gut
 ./start-server.sh
@@ -262,6 +276,7 @@ find views/ -name "*.html" | wc -l
 ```
 
 ### 2. Organisiere neue Scripts richtig
+
 ```bash
 # Server-Script
 scripts/server/new-server-task.sh
@@ -274,6 +289,7 @@ scripts/utils/utility-name.sh
 ```
 
 ### 3. Dokumentiere in docs/
+
 ```bash
 # Neue Dokumentation
 docs/NEW_FEATURE.md
@@ -283,6 +299,7 @@ docs/README.main.md
 ```
 
 ### 4. Logs archivieren
+
 ```bash
 # Alte Logs verschieben
 mv logs/old-*.log logs/archive/
@@ -311,16 +328,19 @@ ALT:                          NEU:
 ## 📝 Wartung
 
 ### Regelmäßig
+
 - Log-Archiv aufräumen (alte Logs löschen)
 - Dokumentation aktualisieren
 - Scripts testen
 
 ### Bei Updates
+
 - Symlinks prüfen
 - Pfade in Scripts validieren
 - Dokumentation anpassen
 
 ### Backup
+
 ```bash
 # Wichtige Dateien sichern
 tar -czf backup-$(date +%Y%m%d).tar.gz \
@@ -332,6 +352,7 @@ tar -czf backup-$(date +%Y%m%d).tar.gz \
 ## 🆘 Troubleshooting
 
 ### Symlink defekt
+
 ```bash
 # Prüfen
 ls -la start-server.sh
@@ -341,12 +362,14 @@ ln -sf scripts/server/start-server.sh start-server.sh
 ```
 
 ### Script nicht ausführbar
+
 ```bash
 # Rechte setzen
 chmod +x scripts/server/start-server.sh
 ```
 
 ### Struktur anzeigen
+
 ```bash
 # Tree-Ansicht
 tree -L 3 -I node_modules
