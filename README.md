@@ -5,6 +5,12 @@ Ordnerstruktur:
 - scripts: Server-Management-Skripte
 - .gitignore: Ignoriert Node-Outputs
 
+## Web-Struktur (neu)
+
+- `web/views/` – serverseitig ausgelieferte Seiten: `/, /landing, /statistik`
+- `web/public/` – statische Assets (HTML/CSS/JS)
+- `frontend/` – veraltet (nur noch README vorhanden); frühere Inhalte sind in `web/legacy/` archiviert
+
 ## Schnellstart
 
 ```bash
@@ -14,6 +20,10 @@ npm run dev
 ```
 
 Dann im Terminal: `$BROWSER http://localhost:3000`
+
+Direktaufrufe:
+- Views: `http://localhost:3000/`, `http://localhost:3000/landing`, `http://localhost:3000/statistik`
+- Legacy-UI (Backend Demo): `http://localhost:3000/ui/`
 
 ## Verfügbare Commands
 
@@ -33,6 +43,7 @@ npm run info     # Projekt-Info anzeigen
 ## Troubleshooting
 
 ### Server läuft nicht
+
 ```bash
 # Port prüfen
 lsof -i :3000
@@ -45,11 +56,13 @@ cd backend && npm run dev
 ```
 
 ### Keine Logs/Hinweise
+
 - Stelle sicher, dass `npm run dev` (nicht `npm start`) läuft
 - Prüfe ob `--watch` Flag aktiv ist
 - Terminal-Ausgabe sollte Startup-Banner zeigen
 
 ### Browser öffnet nicht
+
 ```bash
 # Manuell öffnen
 $BROWSER http://localhost:3000

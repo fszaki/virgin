@@ -2,6 +2,8 @@
 
 Detaillierte Übersicht über die Dateiorganisation.
 
+> Neu: Es gibt eine zentrale Startseite im Projekt-Root unter `index.html`. Sie verlinkt auf Frontend (Views/Public), Backend (Public) sowie Tools/Tests. Es werden keine bestehenden Dateien verschoben – die Seite dient ausschließlich als Navigation.
+
 ## 🎯 Designprinzipien
 
 1. **Trennung nach Funktion** - Scripts, Docs, Code getrennt
@@ -13,9 +15,10 @@ Detaillierte Übersicht über die Dateiorganisation.
 
 ## 📂 Verzeichnisstruktur
 
-```
+```text
 virgin/
 │
+├── 📄 index.html            # Zentrale Startseite (Navigation)
 ├── 📄 server.js              # Haupt-Server-Datei
 ├── 📄 package.json           # Dependencies & Scripts
 ├── 📄 LICENSE                # MIT Lizenz
@@ -44,13 +47,14 @@ virgin/
 │   ├── QUICK_START.md           # Schnellstart
 │   └── SAFE_RESTART.md          # Safe Restart Guide
 │
-├── 📁 views/                 # HTML TEMPLATES
-│   ├── index.html               # Hauptseite
-│   ├── landing.html             # Landing Page
-│   └── statistik.html           # Statistiken
-│
-├── 📁 public/                # STATISCHE DATEIEN
-│   └── styles.css               # CSS Stylesheet
+├── 📁 web/                   # EINHEITLICHE WEB-STRUKTUR
+│   ├── 📁 views/                # HTML-Seiten (serverseitig ausgeliefert)
+│   │   ├── index.html
+│   │   ├── landing.html
+│   │   └── statistik.html
+│   └── 📁 public/               # Statische Assets
+│       ├── index.html           # Statische Startseite
+│       └── styles.css           # Zentrales Stylesheet
 │
 ├── 📁 logs/                  # LOG-DATEIEN
 │   ├── .gitkeep
@@ -154,21 +158,19 @@ readlink start-server.sh
 
 ### Web-Dateien
 
-#### Views (`views/`)
+#### Neu: `web/`
 
-- HTML-Templates
-- Server-seitig gerendert
-- Express Template Engine
+- `web/views/` – HTML-Seiten, die per Route ausgeliefert werden (`/`, `/landing`, `/statistik`)
+- `web/public/` – statische Assets (HTML, CSS, JS, Bilder)
 
-#### Public (`public/`)
+#### Veraltet: `frontend/`
 
-- Statische Assets
-- Direkt ausgeliefert
-- CSS, JS, Bilder
+- Nur noch als Hinweis vorhanden (`frontend/README.md`)
+- Ehemalige Inhalte sind in `web/legacy/` archiviert
 
 ### Logs (`logs/`)
 
-```
+```text
 logs/
 ├── server-20251116-130822.log    # Aktuell
 ├── safe-restart-*.log             # Restart-Logs
@@ -311,7 +313,7 @@ mv logs/old-*.log logs/archive/
 
 Die alte Struktur (alle Scripts im Root) wurde umorganisiert:
 
-```
+```text
 ALT:                          NEU:
 ├── start-server.sh     →    ├── scripts/server/start-server.sh
 ├── kill-server.sh      →    ├── scripts/server/kill-server.sh

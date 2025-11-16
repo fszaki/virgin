@@ -46,12 +46,23 @@ app.post('/api/session/audit', (req, res) => {
   }
 });
 
-// Static UI
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Static assets aus einheitlicher Struktur: web/public
+app.use(express.static(path.join(__dirname, '..', '..', 'web', 'public')));
 
-// SPA-Fallback (optional)
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+// Optional: bisherige Backend-UI weiterhin unter /ui verfügbar lassen (Kompatibilität)
+app.use('/ui', express.static(path.join(__dirname, '..', 'public')));
+
+// View-Routen aus einheitlicher Struktur: web/views
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'index.html'));
+});
+
+app.get('/landing', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'landing.html'));
+});
+
+app.get('/statistik', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'statistik.html'));
 });
 
 app.listen(PORT, () => {

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virgin – Zentrale Startseite</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, sans-serif; margin: 0; }
+    .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 64px 24px; text-align: center; }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 40px); }
+    .hero p { margin: 0; opacity: .95; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .card { background: Canvas; color: CanvasText; border: 1px solid color-mix(in oklab, CanvasText 12%, Canvas 88%); border-radius: 12px; padding: 18px 16px; box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+    .card h2 { margin: 0 0 8px; font-size: 18px; color: #4b57c5; }
+    .card p { margin: 0 0 12px; color: color-mix(in oklab, CanvasText 70%, Canvas 30%); }
+    .links { display: grid; gap: 8px; }
+    .links a { text-decoration: none; padding: 10px 12px; border-radius: 8px; border: 1px solid color-mix(in oklab, CanvasText 14%, Canvas 86%); }
+    .links a:hover { background: color-mix(in oklab, Canvas 92%, CanvasText 8%); }
+    footer { text-align: center; padding: 24px; color: color-mix(in oklab, CanvasText 65%, Canvas 35%); }
+    .note { font-size: .95em; margin: 12px 0 0; color: color-mix(in oklab, CanvasText 60%, Canvas 40%); }
+  </style>
+  <meta name="description" content="Zentrale Startseite für das Virgin-Projekt – schnelle Navigation zu Frontend, Backend und Tools.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:,">
+  
+</head>
+<body>
+  <header class="hero">
+    <h1>Virgin – Zentrale Startseite</h1>
+    <p>Schneller Einstieg und Navigation durch alle Bereiche</p>
+  </header>
+
+  <main class="wrap">
+    <section class="grid" aria-label="Projektbereiche">
+      <article class="card">
+        <h2>Web – Views (neu)</h2>
+        <p>Serverseitige HTML-Views aus <code>web/views</code>.</p>
+        <div class="links">
+          <a href="/">Home (Views)</a>
+          <a href="/landing">Landingpage</a>
+          <a href="/statistik">Statistik</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Web – Public (neu)</h2>
+        <p>Statische Dateien aus <code>web/public</code>.</p>
+        <div class="links">
+          <a href="web/public/index.html">Public Index</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Backend – UI (Legacy)</h2>
+        <p>Ehemalige Backend-UI, jetzt kompatibel unter <code>/ui</code>.</p>
+        <div class="links">
+          <a href="/ui/">Backend UI</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Tools & Tests</h2>
+        <p>Hilfsseiten für Weiterleitungen und Ziele.</p>
+        <div class="links">
+          <a href="project/web/urlfwd/forward.html">Forward (Meta-Refresh)</a>
+          <a href="project/web/urlfwd/testgoal.html">Testziel</a>
+        </div>
+      </article>
+    </section>
+
+    <p class="note">Hinweis: Diese Seite ist eine zentrale Navigation und verschiebt keine bestehenden Dateien. Pfade sind relativ zum Repository-Root, sodass sie sowohl lokal per Datei-Öffnung als auch über einen simplen Static-Server funktionieren.</p>
+  </main>
+
+  <footer>
+    &copy; 2025 Virgin Project
+  </footer>
+</body>
+</html>

@@ -9,28 +9,29 @@ Ein modernes Express.js Web-Server-Projekt mit vollständiger Entwicklungsumgebu
 ## 📚 Inhaltsverzeichnis
 
 - [🌟 Virgin Project](#-virgin-project)
-	- [📚 Inhaltsverzeichnis](#-inhaltsverzeichnis)
-	- [🎯 Übersicht](#-übersicht)
-	- [🚀 Quick Start](#-quick-start)
-	- [📁 Projektstruktur](#-projektstruktur)
-	- [🔧 Installation](#-installation)
-	- [🚀 Verwendung](#-verwendung)
-		- [Server starten](#server-starten)
-		- [Port ändern](#port-ändern)
-	- [🛠️ Scripts](#️-scripts)
-		- [npm Scripts](#npm-scripts)
-		- [Shell Scripts](#shell-scripts)
-		- [Aliases (nach setup-aliases.sh)](#aliases-nach-setup-aliasessh)
-	- [⚙️ Konfiguration](#️-konfiguration)
-	- [🧪 Entwicklung](#-entwicklung)
-		- [Live-Reload (Entwicklung)](#live-reload-entwicklung)
-		- [Neue Seiten hinzufügen](#neue-seiten-hinzufügen)
-		- [Health-Check](#health-check)
-		- [Statische Dateien](#statische-dateien)
-	- [🧪 Testing](#-testing)
-	- [🚀 Deployment](#-deployment)
-	- [❓ Troubleshooting](#-troubleshooting)
-	- [📜 Lizenz](#-lizenz)
+  - [📚 Inhaltsverzeichnis](#-inhaltsverzeichnis)
+  - [🎯 Übersicht](#-übersicht)
+  - [🚀 Quick Start](#-quick-start)
+  - [📁 Projektstruktur](#-projektstruktur)
+  - [🔧 Installation](#-installation)
+  - [🚀 Verwendung](#-verwendung)
+    - [Server starten](#server-starten)
+    - [Port ändern](#port-ändern)
+  - [🛠️ Scripts](#️-scripts)
+    - [npm Scripts](#npm-scripts)
+    - [Shell Scripts](#shell-scripts)
+    - [Aliases (nach setup-aliases.sh)](#aliases-nach-setup-aliasessh)
+  - [⚙️ Konfiguration](#️-konfiguration)
+  - [🧪 Entwicklung](#-entwicklung)
+    - [Live-Reload (Entwicklung)](#live-reload-entwicklung)
+    - [Neue Seiten hinzufügen](#neue-seiten-hinzufügen)
+    - [Health-Check](#health-check)
+    - [Statische Dateien](#statische-dateien)
+  - [🧪 Testing](#-testing)
+  - [🚀 Deployment](#-deployment)
+  - [❓ Troubleshooting](#-troubleshooting)
+  - [📜 Lizenz](#-lizenz)
+  - [🔄 Migration](#-migration)
 
 ---
 
@@ -71,15 +72,15 @@ npm install
 
 ## 📁 Projektstruktur
 
-```
+```text
 virgin/
-├── server.js           # Haupt-Server-Datei
-├── package.json        # Node.js Projekt-Konfiguration
-├── views/             # HTML-Seiten
-│   └── index.html     # Startseite
-├── public/            # Statische Dateien (CSS, JS, Bilder)
-│   └── styles.css     # Stylesheet
-└── README.md          # Diese Datei
+├── backend/            # Express-Server (Quellcode unter src/)
+├── web/
+│   ├── views/          # HTML-Seiten: /, /landing, /statistik
+│   └── public/         # Statische Assets (HTML/CSS/JS/Bilder)
+├── docs/               # Dokumentation
+├── scripts/            # Management-Skripte
+└── README.md           # Haupt-README
 ```
 
 ---
@@ -93,7 +94,7 @@ git clone https://github.com/fszaki/virgin.git
 cd virgin
 ```
 
-2. Abhängigkeiten installieren:
+1. Abhängigkeiten installieren:
 
 ```bash
 npm install
@@ -179,7 +180,7 @@ Umgebungsvariablen für die Konfiguration:
 
 Beispiel `.env` Datei:
 
-```
+```ini
 PORT=3000
 NODE_ENV=development
 ```
@@ -198,8 +199,8 @@ npm run dev
 
 ### Neue Seiten hinzufügen
 
-1. Erstellen Sie HTML-Dateien im `views/` Verzeichnis
-2. Fügen Sie entsprechende Routen in `server.js` hinzu
+1. HTML-Seite unter `web/views/` anlegen (z. B. `about.html`).
+2. Route im Server hinzufügen (siehe `backend/src/server.js`).
 
 ### Health-Check
 
@@ -222,10 +223,10 @@ Antwort (Beispiel):
 
 ### Statische Dateien
 
-Alle Dateien im `public/` Verzeichnis sind über den Root-Pfad erreichbar:
+Alle Dateien in `web/public/` sind über den Root-Pfad erreichbar:
 
-- `public/styles.css` → `http://localhost:3000/styles.css`
-- `public/script.js` → `http://localhost:3000/script.js`
+- `web/public/styles.css` → `http://localhost:3000/styles.css`
+- `web/public/script.js` → `http://localhost:3000/script.js`
 
 ---
 
@@ -263,3 +264,20 @@ Häufige Probleme und Lösungen:
 ## 📜 Lizenz
 
 MIT License - siehe [LICENSE](LICENSE) Datei für Details
+
+---
+
+## 🔄 Migration
+
+Die frühere Web-Struktur unter `frontend/` wurde vereinheitlicht und nach `web/` migriert:
+
+- Neu: `web/views/` (Seiten) und `web/public/` (statische Assets)
+- Veraltet: `frontend/` (nur noch `frontend/README.md` als Hinweis)
+- Archiv: `web/legacy/` (kann entfernt werden, wenn nicht mehr benötigt)
+
+Routenübersicht nach Migration:
+
+- `GET /` → `web/views/index.html`
+- `GET /landing` → `web/views/landing.html`
+- `GET /statistik` → `web/views/statistik.html`
+- `GET /ui/` → Legacy-Backend-UI (`backend/public/*`)
