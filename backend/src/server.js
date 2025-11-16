@@ -3,7 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { session_end } from './session.js';
+import { session_end, session_audit } from './session.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +29,17 @@ app.post('/api/session/end', (req, res) => {
   const { sessionId, reason } = req.body || {};
   try {
     const result = session_end(sessionId, { reason });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// New route for auditing a session
+app.post('/api/session/audit', (req, res) => {
+  const { sessionId, docs, structures, statistics, rows, data } = req.body || {};
+  try {
+    const result = session_audit(sessionId, { docs, structures, statistics, rows, data });
     res.json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });

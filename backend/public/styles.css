@@ -71,6 +71,22 @@ pre {
   max-height: 40vh;
 }
 
+input[type="text"] {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.3);
+  color: var(--text);
+  padding: .6rem .9rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
 footer a {
   color: var(--accent-2);
   text-decoration: none;
