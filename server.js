@@ -1,3 +1,15 @@
+/**
+ * Virgin Project - Express.js Web Server
+ * 
+ * Ein moderner, produktionsbereiter Web-Server mit:
+ * - Rate Limiting
+ * - Static File Serving
+ * - Health-Check Endpoint
+ * - Strukturiertes Logging
+ * 
+ * @version 1.0.0
+ */
+
 const express = require('express');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
@@ -5,6 +17,14 @@ const pkg = require('./package.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Startup-Log
+console.log('='.repeat(60));
+console.log('Virgin Project Server');
+console.log(`Version: ${pkg.version}`);
+console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`Node Version: ${process.version}`);
+console.log('='.repeat(60));
 
 // Rate limiting middleware
 const limiter = rateLimit({
@@ -39,6 +59,18 @@ app.get('/healthz', (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Web server is running on http://localhost:${PORT}`);
-    console.log(`Press Ctrl+C to stop the server`);
+    console.log(`\n✓ Web server is running on http://localhost:${PORT}`);
+    console.log(`✓ Health endpoint: http://localhost:${PORT}/healthz`);
+    console.log(`\nPress Ctrl+C to stop the server\n`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('\n⚠ SIGTERM signal received: closing HTTP server');
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    console.log('\n⚠ SIGINT signal received: closing HTTP server');
+    process.exit(0);
 });

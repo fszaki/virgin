@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Server Start Script
+# Verwendung: chmod +x start-server.sh && ./start-server.sh
+#
 
 set -e
 
@@ -162,7 +166,7 @@ if ps -p $SERVER_PID > /dev/null; then
     
     log "\n${BLUE}Verwende './kill-server.sh' zum Beenden${NC}"
 else
-    log "${RED}✗ Server konkonnte nicht gestartet werden!${NC}"
+    log "${RED}✗ Server konnte nicht gestartet werden!${NC}"
     log "Prüfe die Logs: $LOG_FILE"
     exit 1
 fi

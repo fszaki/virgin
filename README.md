@@ -1,15 +1,78 @@
-# Virgin Web Server
+# 🌟 Virgin Project
 
-Ein einfacher Web-Server zur Erstellung und Bereitstellung von Webseiten.
+Ein modernes Express.js Web-Server-Projekt mit vollständiger Entwicklungsumgebung.
 
-## Funktionen
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/express-4.x-blue.svg)](https://expressjs.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-- Express.js basierter Web-Server
-- Statische Datei-Bereitstellung
-- HTML-Seiten-Rendering
-- Einfach zu erweitern und anzupassen
+## 📚 Inhaltsverzeichnis
 
-## Installation
+- [Übersicht](#übersicht)
+- [Quick Start](#quick-start)
+- [Projektstruktur](#projektstruktur)
+- [Installation](#installation)
+- [Verwendung](#verwendung)
+- [Scripts](#scripts)
+- [Konfiguration](#konfiguration)
+- [Entwicklung](#entwicklung)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
+
+---
+
+## 🎯 Übersicht
+
+Virgin Project ist ein vollständig konfiguriertes Express.js Server-Template mit:
+
+- ✅ Express.js Web-Server
+- ✅ Rate Limiting
+- ✅ Statische Datei-Bereitstellung
+- ✅ Health-Check Endpoint
+- ✅ Umfassendes Logging
+- ✅ Automatisierte Scripts
+- ✅ Dev Container Support
+- ✅ Strukturierte Projekt-Organisation
+
+---
+
+## 🚀 Quick Start
+
+**Für sofortigen Start siehe:** [QUICK_START.md](QUICK_START.md)
+
+```bash
+# 1. In Projektverzeichnis wechseln
+cd /workspaces/virgin
+
+# 2. Abhängigkeiten installieren
+npm install
+
+# 3. Server starten
+./start-server.sh
+
+# 4. Browser öffnen
+"$BROWSER" http://localhost:3000
+```
+
+---
+
+## 📁 Projektstruktur
+
+```
+virgin/
+├── server.js           # Haupt-Server-Datei
+├── package.json        # Node.js Projekt-Konfiguration
+├── views/             # HTML-Seiten
+│   └── index.html     # Startseite
+├── public/            # Statische Dateien (CSS, JS, Bilder)
+│   └── styles.css     # Stylesheet
+└── README.md          # Diese Datei
+```
+
+---
+
+## 🔧 Installation
 
 1. Repository klonen:
 ```bash
@@ -22,7 +85,9 @@ cd virgin
 npm install
 ```
 
-## Verwendung
+---
+
+## 🚀 Verwendung
 
 ### Server starten
 
@@ -57,20 +122,34 @@ Sie können den Port über eine Umgebungsvariable ändern:
 PORT=8080 npm start
 ```
 
-## Projektstruktur
+---
+
+## 🛠️ Scripts
+
+- `npm start`: Starte den Server
+- `npm run dev`: Starte den Server im Entwicklungsmodus
+- `npm test`: Führe die Tests aus
+- `npm run lint`: Führe den Linter aus
+
+---
+
+## ⚙️ Konfiguration
+
+Umgebungsvariablen für die Konfiguration:
+
+- `PORT`: Der Port, auf dem der Server läuft (Standard: `3000`)
+- `NODE_ENV`: Die Umgebung, in der die Anwendung läuft (z.B. `development`, `production`)
+
+Beispiel `.env` Datei:
 
 ```
-virgin/
-├── server.js           # Haupt-Server-Datei
-├── package.json        # Node.js Projekt-Konfiguration
-├── views/             # HTML-Seiten
-│   └── index.html     # Startseite
-├── public/            # Statische Dateien (CSS, JS, Bilder)
-│   └── styles.css     # Stylesheet
-└── README.md          # Diese Datei
+PORT=3000
+NODE_ENV=development
 ```
 
-## Entwicklung
+---
+
+## 🧪 Entwicklung
 
 ### Live-Reload (Entwicklung)
 
@@ -81,6 +160,9 @@ npm run dev
 ```
 
 ### Neue Seiten hinzufügen
+
+1. Erstellen Sie HTML-Dateien im `views/` Verzeichnis
+2. Fügen Sie entsprechende Routen in `server.js` hinzu
 
 ### Health-Check
 
@@ -101,15 +183,45 @@ Antwort (Beispiel):
 }
 ```
 
-1. Erstellen Sie HTML-Dateien im `views/` Verzeichnis
-2. Fügen Sie entsprechende Routen in `server.js` hinzu
-
 ### Statische Dateien
 
 Alle Dateien im `public/` Verzeichnis sind über den Root-Pfad erreichbar:
 - `public/styles.css` → `http://localhost:3000/styles.css`
 - `public/script.js` → `http://localhost:3000/script.js`
 
-## Lizenz
+---
+
+## 🧪 Testing
+
+Um die Tests auszuführen, verwenden Sie:
+
+```bash
+npm test
+```
+
+---
+
+## 🚀 Deployment
+
+Für das Deployment in Produktionsumgebungen:
+
+1. Setzen Sie die Umgebungsvariablen für die Produktion.
+2. Führen Sie `npm run build` aus, um die Anwendung zu erstellen.
+3. Starten Sie die Anwendung mit `npm start`.
+
+---
+
+## ❓ Troubleshooting
+
+Häufige Probleme und Lösungen:
+
+- **Problem:** Der Server startet nicht.
+  - **Lösung:** Stellen Sie sicher, dass alle Abhängigkeiten installiert sind und der richtige Node.js Version verwendet wird.
+- **Problem:** Port ist bereits belegt.
+  - **Lösung:** Ändern Sie den Port in der `.env` Datei oder beenden Sie den Prozess, der den Port verwendet.
+
+---
+
+## 📜 Lizenz
 
 MIT License - siehe [LICENSE](LICENSE) Datei für Details
