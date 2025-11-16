@@ -1,0 +1,542 @@
+]633;E;echo "=== Virgin Bundle ($(date -u +%FT%TZ)) ===";705e2911-48fd-4208-a80b-f3f5184afa2a]633;C=== Virgin Bundle (2025-11-16T15:46:56Z) ===
+Repo: fszaki/virgin (branch: master)
+
+-- Last commits --
+08932ad docs(changelog): record views/tests/compose/script/banner updates
+754dc8e docs(copilot): Add focused .github/copilot-instructions with architecture, workflows, and conventions
+3bbf04e docs: link CHANGELOG from docs/README.main.md (TOC + section)
+
+-- Changed files in last commit --
+.github/workflows/ci.yml
+CHANGELOG.md
+README.md
+
+# .github/copilot-instructions.md
+
+# Copilot Instructions for This Repo
+
+Purpose: Give AI coding agents the minimum, concrete context to be productive here. Document actual patterns used in this codebase, not aspirations.
+
+## Big Picture
+- Server-first setup. Primary runtime is `backend/` (Express on port 3000). Static assets live in `web/public/`. Legacy folders (`app/`, `frontend/`) are deprecated.
+- API + static delivery in one service:
+  - API: JSON under `/api/*` (e.g., `/api/health`, `/api/stats`, session endpoints)
+  - Static: `web/public` is served at `/` via `express.static(...)`
+  - Legacy static UI (kept for demos): `backend/public` mounted under `/ui/`
+- Views: The server routes map `/`, `/landing`, `/statistik` to files in `web/views` (now present). Static homepage also exists at `web/public/index.html`.
+
+Key files:
+- Backend entry: `backend/src/server.js` (ESM)
+- Session logic & validation: `backend/src/session.js`
+- Static assets: `web/public/`
+- Legacy static: `backend/public/` (served at `/ui/...`)
+- Scripts (Docker Compose start/stop): `scripts/server/*.sh`
+
+## Run & Debug
+- Local dev (hot reload):
+  ```bash
+  cd backend
+  npm install
+  npm run dev   # node --watch src/server.js (port 3000)
+  ```
+- Standard start:
+  ```bash
+  cd backend
+  npm start
+  ```
+- Health checks:
+  - `GET /api/health` → `{ status: "ok" }`
+  - `GET /healthz` → `{ status, uptime, timestamp }`
+- Optional (Docker Compose, starts backend:3000 and nginx:8080):
+  ```bash
+  ./scripts/server/start-server.sh
+  ./scripts/server/restart-servers.sh
+  ./scripts/server/kill-server.sh
+  ```
+  Note: `frontend/` is deprecated; `docker-compose.yml` still mounts `./frontend/public` (may be empty). Prefer `web/public` in the unified structure.
+  Compose is updated to mount `./web/public` for the nginx frontend.
+
+## API Essentials
+- Patterns (see `backend/src/server.js`):
+  - JSON responses for success; errors respond with HTTP 400 and `{ error: message }`
+  - Request counting and basic logging via `morgan('dev')`
+- Endpoints implemented:
+  - `GET /api/hello` → greeting with timestamp
+  - `GET /api/health` and `GET /healthz` → health status
+  - `GET /api/stats` → process/server stats (reads version from `backend/package.json` if present)
+  - `POST /api/session/end` → uses `session_end(sessionId, { reason })`
+  - `POST /api/session/audit` → uses `session_audit(sessionId, { docs, structures, statistics|rows|data })`
+- Validation utilities (in `backend/src/session.js`):
+  - `validate_documentations(docs)` enforces `{ title, version (semver), lastUpdated (ISO), sections[] }`
+  - `validate_structures(structures)` validates tree nodes `{ id, name, children[] }`
+  - `compute_statistics(rows)` aggregates numeric fields across rows
+
+## Conventions
+- Modules: ES Modules in `backend/` (`type: module`), use `import ... from`.
+- Routing style: Route handlers live in `backend/src/server.js` (no separate router modules yet). Keep endpoint list in the startup banner updated when adding routes.
+- Static files:
+  - Place assets in `web/public` → available directly under `/` (e.g., `/styles.css`)
+  - Legacy demo UI under `/ui/*` from `backend/public`
+- Errors: Use HTTP 400 with `{ error: string }` for validation failures.
+- Ports: Default `PORT=3000` (can be overridden via env var).
+
+## What NOT to use
+- `app/` is legacy (CommonJS + interactive prompt). `app/package.json` intentionally exits for `start/dev`.
+- `frontend/` is deprecated. Prefer `web/public` (and `web/views` if you add view files).
+- The top-level `src/` (controllers/routes/etc.) is not wired into the running backend — do not place new backend code there.
+
+## Adding Features (Examples)
+- New static page: add `web/public/xyz.html` → reachable at `/xyz.html` (no code change needed).
+- New view route: add `web/views/landing.html` and a route in `backend/src/server.js`:
+  ```js
+  app.get('/landing', (_req, res) => res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'landing.html')));
+  ```
+- New API route: define handler in `backend/src/server.js`, return JSON; log in startup banner.
+- Session validation: reuse `validate_documentations`, `validate_structures`, `compute_statistics` helpers; see how `session_audit` composes them.
+
+## Dependencies (actual)
+- Node >= 18, Express ^4.21, `morgan`, `cors` (see `backend/package.json`). Prefer actual `package.json` over docs if they diverge.
+
+## Testing
+- Uses Node's built-in test runner. Example:
+  ```bash
+  cd backend
+  npm test
+  ```
+- Sample tests live in `backend/test/session.test.js` covering `session.js` helpers.
+
+## Troubleshooting
+- Port busy: `lsof -i :3000` then `./scripts/server/kill-server.sh`
+- Server not reachable: ensure `npm run dev` or `npm start` is running in `backend/`; check `/api/health`.
+- Views 404: if `web/views` files are missing, open `/index.html` from `web/public` or add the missing view files.
+
+# backend/src/server.js
+
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { session_end, session_audit } from './session.js';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const startTime = new Date();
+let requestCount = 0;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(morgan('dev'));
+app.use(cors());
+app.use(express.json());
+
+// Simple request counter
+app.use((_req, _res, next) => {
+  requestCount += 1;
+  next();
+});
+
+// Simple API
+app.get('/api/hello', (_req, res) => {
+  res.json({ message: 'Hallo von der API 👋', time: new Date().toISOString() });
+});
+
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Healthz endpoint for easier probing
+app.get('/healthz', (_req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
+// Stats endpoint used by Statistik-View
+app.get('/api/stats', (_req, res) => {
+  let version = '0.1.0';
+  try {
+    const pkgPath = path.join(__dirname, '..', 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+      version = pkg.version || version;
+    }
+  } catch {}
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    startTime: startTime.toISOString(),
+    timestamp: new Date().toISOString(),
+    version,
+    pid: process.pid,
+    cwd: process.cwd(),
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    memoryUsage: process.memoryUsage(),
+    requestCount
+  });
+});
+
+// New route for ending a session
+app.post('/api/session/end', (req, res) => {
+  const { sessionId, reason } = req.body || {};
+  try {
+    const result = session_end(sessionId, { reason });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// New route for auditing a session
+app.post('/api/session/audit', (req, res) => {
+  const { sessionId, docs, structures, statistics, rows, data } = req.body || {};
+  try {
+    const result = session_audit(sessionId, { docs, structures, statistics, rows, data });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Static assets aus einheitlicher Struktur: web/public
+app.use(express.static(path.join(__dirname, '..', '..', 'web', 'public')));
+
+// Optional: bisherige Backend-UI weiterhin unter /ui verfügbar lassen (Kompatibilität)
+app.use('/ui', express.static(path.join(__dirname, '..', 'public')));
+
+// View-Routen aus einheitlicher Struktur: web/views
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'index.html'));
+});
+
+app.get('/landing', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'landing.html'));
+});
+
+app.get('/statistik', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'statistik.html'));
+});
+
+app.listen(PORT, () => {
+  console.log('\n' + '='.repeat(60));
+  console.log('🚀 Virgin Server gestartet');
+  console.log('='.repeat(60));
+  console.log(`📍 Lokal:     http://localhost:${PORT}`);
+  console.log(`🌐 Netzwerk:  http://0.0.0.0:${PORT}`);
+  console.log(`📂 Statisch:  ${path.join(__dirname, '..', '..', 'web', 'public')}`);
+  console.log(`🔧 Modus:     ${process.env.NODE_ENV || 'development'}`);
+  console.log('='.repeat(60));
+  console.log('📋 Verfügbare Endpoints:');
+  console.log('  GET  /api/hello');
+  console.log('  GET  /api/health');
+  console.log('  GET  /healthz');
+  console.log('  GET  /api/stats');
+  console.log('  POST /api/session/end');
+  console.log('  POST /api/session/audit');
+  console.log('='.repeat(60));
+  console.log('💡 Tipps:');
+  console.log(`  • Browser öffnen: $BROWSER http://localhost:${PORT}`);
+  console.log('  • Hot-Reload aktiv (--watch)');
+  console.log('  • Ctrl+C zum Beenden');
+  console.log('='.repeat(60) + '\n');
+});
+
+# backend/package.json
+
+{
+  "name": "virgin-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "echo '\n🔧 Starte Entwicklungsserver...\n'",
+    "dev": "node --watch ./src/server.js",
+    "prestart": "echo '\n🚀 Starte Produktionsserver...\n'",
+    "start": "node ./src/server.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "info": "echo '\n📦 Virgin Backend\n✓ Port: 3000\n✓ Hot-Reload: npm run dev\n✓ Produktion: npm start\n'"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0"
+  }
+}
+
+# backend/test/session.test.js
+
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  validate_documentations,
+  validate_structures,
+  compute_statistics,
+  session_audit,
+  session_end,
+  __session_add,
+  __session_has,
+} from '../src/session.js';
+
+test('validate_documentations: accepts valid doc and rejects invalid', () => {
+  const now = new Date().toISOString();
+  const good = validate_documentations([
+    { title: 'Doc', version: '1.2.3', lastUpdated: now, sections: ['a'] },
+  ]);
+  assert.equal(good.total, 1);
+  assert.equal(good.passed, 1);
+  assert.equal(good.failed, 0);
+
+  const bad = validate_documentations([
+    { title: '', version: 'not-semver', lastUpdated: 'yesterday', sections: [] },
+  ]);
+  assert.equal(bad.total, 1);
+  assert.equal(bad.passed, 0);
+  assert.equal(bad.failed, 1);
+});
+
+test('validate_structures: counts nodes and errors', () => {
+  const tree = { id: 'r', name: 'root', children: [{ id: 1, name: 'n1' }] };
+  const res = validate_structures([tree]);
+  assert.equal(res.total, 1);
+  assert.equal(res.passed, 1);
+  assert.equal(res.failed, 0);
+  assert.equal(res.totalNodes, 2);
+
+  const bad = validate_structures([{ name: '', children: 'nope' }]);
+  assert.equal(bad.failed, 1);
+});
+
+test('compute_statistics: aggregates numeric fields', () => {
+  const stats = compute_statistics([
+    { a: 1, b: 10 },
+    { a: 3, b: 20 },
+    { a: 5 },
+  ]);
+  assert.equal(stats.count, 3);
+  assert.ok('a' in stats.fields);
+  assert.equal(stats.fields.a.count, 3);
+  assert.equal(stats.fields.a.min, 1);
+  assert.equal(stats.fields.a.max, 5);
+  assert.equal(stats.fields.a.avg, (1 + 3 + 5) / 3);
+  assert.ok('b' in stats.fields);
+  assert.equal(stats.fields.b.count, 2);
+});
+
+test('session_audit: composes validations and updates store', () => {
+  const sid = 'test-session-1';
+  const now = new Date().toISOString();
+  const res = session_audit(sid, {
+    docs: [{ title: 'Doc', version: '1.0.0', lastUpdated: now, sections: ['x'] }],
+    structures: [{ id: 'r', name: 'root' }],
+    rows: [{ n: 1 }, { n: 2 }],
+  });
+  assert.equal(res.ok, true);
+  assert.equal(res.sessionId, sid);
+  assert.equal(res.checks.documentation.passed, 1);
+  assert.equal(res.checks.structures.passed, 1);
+  assert.equal(res.checks.statistics.count, 2);
+});
+
+test('session_end: handles not_found and ended', () => {
+  const sid = 'test-session-2';
+  const notFound = session_end(sid);
+  assert.equal(notFound.ok, true);
+  assert.equal(notFound.status, 'not_found');
+
+  __session_add(sid, { foo: 'bar' });
+  assert.equal(__session_has(sid), true);
+  const ended = session_end(sid, { reason: 'done' });
+  assert.equal(ended.ok, true);
+  assert.equal(ended.status, 'ended');
+  assert.equal(ended.reason, 'done');
+});
+
+# docker-compose.yml
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/public:/app/public
+    command: npm run dev
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web/public:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+# scripts/server/start-server.sh
+
+#!/bin/bash
+#
+# Server Start Script (Docker Compose)
+# Verwendung: chmod +x start-server.sh && ./start-server.sh
+#
+
+set -e
+
+echo "=== Server Start (Docker Compose) ==="
+echo "Datum: $(date)"
+echo ""
+
+# Farben
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+PROJECT_DIR="/workspaces/virgin"
+LOG_DIR="$PROJECT_DIR/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/compose-start-$(date +%Y%m%d-%H%M%S).log"
+
+echo -e "${BLUE}Log-Datei: $LOG_FILE${NC}"
+
+if ! command -v docker >/dev/null; then
+  echo -e "${RED}✗ Docker ist nicht installiert/verfügbar${NC}"
+  exit 1
+fi
+
+echo -e "${YELLOW}Hinweis:${NC} Die alte app/ Node-Startlogik ist veraltet."
+echo -e "${YELLOW}→${NC} Starte Backend (3000) und/oder Frontend (8080) via Docker Compose."
+
+pushd "$PROJECT_DIR" >/dev/null
+
+# Prüfe, ob ein Backend bereits lokal läuft (z. B. "npm run dev")
+set +e
+HEALTH_BACK_PRE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health)
+set -e
+
+if [ "$HEALTH_BACK_PRE" = "200" ]; then
+  echo -e "${YELLOW}Backend läuft bereits lokal (Port 3000). Starte nur Frontend (nginx).${NC}"
+  DOCKER_BUILDKIT=1 docker compose up -d --build frontend 2>&1 | tee -a "$LOG_FILE"
+else
+  echo -e "${BLUE}Backend nicht gefunden. Starte Backend und Frontend via Compose.${NC}"
+  DOCKER_BUILDKIT=1 docker compose up -d --build 2>&1 | tee -a "$LOG_FILE"
+fi
+
+popd >/dev/null
+
+sleep 2
+
+# Health-Checks
+set +e
+HEALTH_BACK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health)
+HEALTH_FRONT=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+set -e
+
+if [ "$HEALTH_BACK" = "200" ]; then
+  echo -e "${GREEN}✓ Backend erreichbar:${NC} http://localhost:3000/api/health (200)"
+else
+  echo -e "${YELLOW}• Backend nicht per Compose gestartet oder (noch) nicht erreichbar${NC} (Status: $HEALTH_BACK)"
+fi
+
+if [ "$HEALTH_FRONT" = "200" ]; then
+  echo -e "${GREEN}✓ Frontend erreichbar:${NC} http://localhost:8080/ (200)"
+else
+  echo -e "${RED}✗ Frontend nicht erreichbar${NC} (Status: $HEALTH_FRONT)"
+fi
+
+echo ""
+echo -e "${BLUE}URLs:${NC}"
+echo "  Frontend: http://localhost:8080"
+echo "  Backend:  http://localhost:3000"
+echo ""
+echo -e "${GREEN}Fertig.${NC} Mit 'docker compose logs -f' Logs ansehen."
+
+# web/views/index.html
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start | Virgin</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>main{max-width:840px;margin:2rem auto;padding:0 1rem}</style>
+  </head>
+<body>
+  <main>
+    <h1>Virgin Server – Views</h1>
+    <p>Diese Seite wird über <code>web/views/index.html</code> ausgeliefert.</p>
+    <nav>
+      <a href="/">Home</a> · <a href="/landing">Landing</a> · <a href="/statistik">Statistik</a> · <a href="/index.html">Statische Startseite</a>
+    </nav>
+  </main>
+</body>
+</html>
+
+# web/views/landing.html
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landing | Virgin</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>main{max-width:840px;margin:2rem auto;padding:0 1rem}</style>
+</head>
+<body>
+  <main>
+    <h1>Landing</h1>
+    <p>Beispiel-View unter <code>web/views/landing.html</code>.</p>
+    <nav>
+      <a href="/">Home</a> · <a href="/statistik">Statistik</a> · <a href="/index.html">Statische Startseite</a>
+    </nav>
+  </main>
+</body>
+</html>
+
+# web/views/statistik.html
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Statistik | Virgin</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>main{max-width:840px;margin:2rem auto;padding:0 1rem} pre{background:#111;color:#eee;padding:1rem;border-radius:8px;overflow:auto}</style>
+</head>
+<body>
+  <main>
+    <h1>Server-Statistik</h1>
+    <p>Diese Seite lädt Daten von <code>/api/stats</code>.</p>
+    <nav>
+      <a href="/">Home</a> · <a href="/landing">Landing</a> · <a href="/index.html">Statische Startseite</a>
+    </nav>
+    <section>
+      <button id="refresh">Neu laden</button>
+      <pre id="out">Lade…</pre>
+    </section>
+  </main>
+  <script>
+    async function load() {
+      const el = document.getElementById('out');
+      try {
+        const res = await fetch('/api/stats');
+        const json = await res.json();
+        el.textContent = JSON.stringify(json, null, 2);
+      } catch (e) {
+        el.textContent = 'Fehler beim Laden: ' + (e && e.message || e);
+      }
+    }
+    document.getElementById('refresh').addEventListener('click', load);
+    load();
+  </script>
+</body>
+</html>
+
