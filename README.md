@@ -9,7 +9,7 @@ Ordnerstruktur:
 
 - `web/views/` – serverseitig ausgelieferte Seiten: `/, /landing, /statistik`
 - `web/public/` – statische Assets (HTML/CSS/JS)
-- `frontend/` – veraltet (nur noch README vorhanden); frühere Inhalte sind in `web/legacy/` archiviert
+- `frontend/` – veraltet (nur noch README vorhanden)
 
 ## Schnellstart
 

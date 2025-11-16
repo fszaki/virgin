@@ -273,7 +273,7 @@ Die frühere Web-Struktur unter `frontend/` wurde vereinheitlicht und nach `web/
 
 - Neu: `web/views/` (Seiten) und `web/public/` (statische Assets)
 - Veraltet: `frontend/` (nur noch `frontend/README.md` als Hinweis)
-- Archiv: `web/legacy/` (kann entfernt werden, wenn nicht mehr benötigt)
+- Legacy-Archiv: entfernt (ehemals `web/legacy/`)
 
 Routenübersicht nach Migration:
 

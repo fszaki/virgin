@@ -166,7 +166,7 @@ readlink start-server.sh
 #### Veraltet: `frontend/`
 
 - Nur noch als Hinweis vorhanden (`frontend/README.md`)
-- Ehemalige Inhalte sind in `web/legacy/` archiviert
+- Ehemalige Inhalte wurden entfernt (Legacy-Archiv nicht mehr vorhanden)
 
 ### Logs (`logs/`)
 
