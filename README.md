@@ -1,5 +1,7 @@
 # Virgin Projekt (API + UI)
 
+> Status: Beta – Diese Codebasis befindet sich derzeit im Beta-Zustand. Änderungen können brechend sein; Workflows und Struktur werden aktiv stabilisiert.
+
 Ordnerstruktur:
 - backend: Express-API + statische UI (HTML/JS/CSS)
 - scripts: Server-Management-Skripte
