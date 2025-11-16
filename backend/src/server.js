@@ -111,7 +111,7 @@ app.listen(PORT, () => {
   console.log('='.repeat(60));
   console.log(`📍 Lokal:     http://localhost:${PORT}`);
   console.log(`🌐 Netzwerk:  http://0.0.0.0:${PORT}`);
-  console.log(`📂 Statisch:  ${path.join(__dirname, '..', 'public')}`);
+  console.log(`📂 Statisch:  ${path.join(__dirname, '..', '..', 'web', 'public')}`);
   console.log(`🔧 Modus:     ${process.env.NODE_ENV || 'development'}`);
   console.log('='.repeat(60));
   console.log('📋 Verfügbare Endpoints:');

@@ -30,10 +30,23 @@ if ! command -v docker >/dev/null; then
 fi
 
 echo -e "${YELLOW}Hinweis:${NC} Die alte app/ Node-Startlogik ist veraltet."
-echo -e "${YELLOW}→${NC} Starte jetzt Backend (3000) und Frontend (8080) via Docker Compose."
+echo -e "${YELLOW}→${NC} Starte Backend (3000) und/oder Frontend (8080) via Docker Compose."
 
 pushd "$PROJECT_DIR" >/dev/null
-DOCKER_BUILDKIT=1 docker compose up -d --build 2>&1 | tee -a "$LOG_FILE"
+
+# Prüfe, ob ein Backend bereits lokal läuft (z. B. "npm run dev")
+set +e
+HEALTH_BACK_PRE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health)
+set -e
+
+if [ "$HEALTH_BACK_PRE" = "200" ]; then
+  echo -e "${YELLOW}Backend läuft bereits lokal (Port 3000). Starte nur Frontend (nginx).${NC}"
+  DOCKER_BUILDKIT=1 docker compose up -d --build frontend 2>&1 | tee -a "$LOG_FILE"
+else
+  echo -e "${BLUE}Backend nicht gefunden. Starte Backend und Frontend via Compose.${NC}"
+  DOCKER_BUILDKIT=1 docker compose up -d --build 2>&1 | tee -a "$LOG_FILE"
+fi
+
 popd >/dev/null
 
 sleep 2
@@ -47,7 +60,7 @@ set -e
 if [ "$HEALTH_BACK" = "200" ]; then
   echo -e "${GREEN}✓ Backend erreichbar:${NC} http://localhost:3000/api/health (200)"
 else
-  echo -e "${RED}✗ Backend nicht erreichbar${NC} (Status: $HEALTH_BACK)"
+  echo -e "${YELLOW}• Backend nicht per Compose gestartet oder (noch) nicht erreichbar${NC} (Status: $HEALTH_BACK)"
 fi
 
 if [ "$HEALTH_FRONT" = "200" ]; then

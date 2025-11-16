@@ -8,6 +8,8 @@
     "dev": "node --watch ./src/server.js",
     "prestart": "echo '\n🚀 Starte Produktionsserver...\n'",
     "start": "node ./src/server.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
     "info": "echo '\n📦 Virgin Backend\n✓ Port: 3000\n✓ Hot-Reload: npm run dev\n✓ Produktion: npm start\n'"
   },
   "dependencies": {
