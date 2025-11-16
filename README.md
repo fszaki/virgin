@@ -11,10 +11,6 @@ Schnellstart (ohne Docker):
 3) npm run dev
 4) $BROWSER http://localhost:3000
 
-Schnellstart (mit Docker):
-1) docker compose up --build
-2) $BROWSER http://localhost:3000
-
 API:
 - GET /api/hello
 - GET /api/health
