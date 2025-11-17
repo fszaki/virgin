@@ -1,6 +1,18 @@
 {
 	"inputs": [
 		{
+			"id": "github_token",
+			"type": "promptString",
+			"description": "GitHub Personal Access Token (for @modelcontextprotocol/server-github)",
+			"password": true
+		},
+		{
+			"id": "brave_api_key",
+			"type": "promptString",
+			"description": "Brave Search API Key (get from https://brave.com/search/api/)",
+			"password": true
+		},
+		{
 			"id": "browser_url",
 			"type": "promptString",
 			"description": "Optional: connect to an already-running Chrome (remote debugging / port-forward). Example: http://127.0.0.1:9222",
@@ -28,5 +40,50 @@
 			"default": "stable"
 		}
 	],
-	"servers": {}
+	"servers": {
+		"filesystem": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspaces/virgin"]
+		},
+		"github": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-github"],
+			"env": {
+				"GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
+			}
+		},
+		"git": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-git", "--repository", "/workspaces/virgin"]
+		},
+		"sqlite": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/workspaces/virgin/data"]
+		},
+		"fetch": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-fetch"]
+		},
+		"brave-search": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-brave-search"],
+			"env": {
+				"BRAVE_API_KEY": "${input:brave_api_key}"
+			}
+		},
+		"memory": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-memory"]
+		},
+		"puppeteer": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+			"env": {
+				"BROWSER_WS_ENDPOINT": "${input:browser_url}",
+				"HEADLESS": "${input:headless}",
+				"ISOLATED": "${input:isolated}",
+				"CHROME_CHANNEL": "${input:chrome_channel}"
+			}
+		}
+	}
 }
