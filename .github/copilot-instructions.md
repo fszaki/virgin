@@ -67,8 +67,7 @@ Key files:
 
 ## What NOT to use
 - `app/` is legacy (CommonJS + interactive prompt). `app/package.json` intentionally exits for `start/dev`.
-- `frontend/` is deprecated. Prefer `web/public` (and `web/views` if you add view files).
-- The top-level `src/` (controllers/routes/etc.) is not wired into the running backend — do not place new backend code there.
+- Top-level `src/`, `bin/`, `frontend/` are deprecated and removed. Use `backend/src/` and `web/` instead.
 
 ## Adding Features (Examples)
 - New static page: add `web/public/xyz.html` → reachable at `/xyz.html` (no code change needed).

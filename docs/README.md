@@ -1,10 +1,12 @@
-# 🌟 Virgin Project
+# 🌟 Virgin Project - Vollständige Dokumentation
 
 Ein modernes Express.js Web-Server-Projekt mit vollständiger Entwicklungsumgebung.
 
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/express-5.x-blue.svg)](https://expressjs.com/)
+[![Express](https://img.shields.io/badge/express-4.x-blue.svg)](https://expressjs.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+> **Hinweis:** Dies ist die umfassende Dokumentation. Für einen schnellen Einstieg siehe [QUICK_START.md](QUICK_START.md).
 
 ## 🚀 Quick Start
 

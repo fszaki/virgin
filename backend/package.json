@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "echo '\n🔧 Starte Entwicklungsserver...\n' && (lsof -i :${PORT:-3000} >/dev/null 2>&1 && echo '⚠️  Port ${PORT:-3000} bereits belegt' || true)",
+    "predev": "echo '\n🔧 Starte Entwicklungsserver...\n' && (lsof -i :3000 >/dev/null 2>&1 && echo '⚠️  Port 3000 bereits belegt (verwende PORT=3001 npm run dev)' || true)",
     "dev": "node --watch ./src/server.js",
-    "prestart": "echo '\n🚀 Starte Produktionsserver...\n' && (lsof -i :${PORT:-3000} >/dev/null 2>&1 && echo '⚠️  Port ${PORT:-3000} bereits belegt' || true)",
+    "prestart": "echo '\n🚀 Starte Produktionsserver...\n' && (lsof -i :3000 >/dev/null 2>&1 && echo '⚠️  Port 3000 bereits belegt (verwende PORT=3001 npm start)' || true)",
     "start": "node ./src/server.js",
     "test": "node --test",
     "test:watch": "node --test --watch",
