@@ -87,23 +87,10 @@ app.post('/api/session/audit', (req, res) => {
 });
 
 // Static assets aus einheitlicher Struktur: web/public
-app.use(express.static(path.join(__dirname, '..', '..', 'web', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'web', 'public')));
 
 // Optional: bisherige Backend-UI weiterhin unter /ui verfügbar lassen (Kompatibilität)
 app.use('/ui', express.static(path.join(__dirname, '..', 'public')));
-
-// View-Routen aus einheitlicher Struktur: web/views
-app.get('/', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'index.html'));
-});
-
-app.get('/landing', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'landing.html'));
-});
-
-app.get('/statistik', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', '..', 'web', 'views', 'statistik.html'));
-});
 
 app.listen(PORT, () => {
   console.log('\n' + '='.repeat(60));

@@ -10,6 +10,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/public:/app/public
+      - ./web/public:/app/web/public:ro
     command: npm run dev
 
   frontend:
