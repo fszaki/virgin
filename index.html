@@ -20,6 +20,7 @@
     .links a:hover { background: color-mix(in oklab, Canvas 92%, CanvasText 8%); }
     footer { text-align: center; padding: 24px; color: color-mix(in oklab, CanvasText 65%, Canvas 35%); }
     .note { font-size: .95em; margin: 12px 0 0; color: color-mix(in oklab, CanvasText 60%, Canvas 40%); }
+    .lastmod { display:inline-block; padding:2px 6px; background:color-mix(in oklab, Canvas 85%, CanvasText 15%); border-radius:4px; font-variant-numeric:tabular-nums; }
   </style>
   <meta name="description" content="Zentrale Startseite für das Virgin-Projekt – schnelle Navigation zu Frontend, Backend und Tools.">
   <meta name="robots" content="noindex">
@@ -75,6 +76,47 @@
 
   <footer>
     &copy; 2025 Virgin Project
+    <div style="margin-top:6px;font-size:.85em;color:color-mix(in oklab, CanvasText 55%, Canvas 45%);">
+      Zuletzt aktualisiert:
+      <time id="last-modified" class="lastmod" datetime="">lade…</time>
+      <span id="last-modified-relative" style="margin-left:6px;"></span>
+    </div>
   </footer>
+  <script>
+    // Setzt den Zeitstempel basierend auf document.lastModified
+    (function() {
+      const absEl = document.getElementById('last-modified');
+      const relEl = document.getElementById('last-modified-relative');
+      if (!absEl) return;
+      const raw = document.lastModified;
+      let date;
+      // Robust parsen
+      try { date = new Date(raw); } catch(_) {}
+      if (!(date && !isNaN(date))) {
+        absEl.textContent = raw || '–';
+        return;
+      }
+      absEl.dateTime = date.toISOString();
+      absEl.textContent = date.toLocaleString('de-DE', {
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit'
+      });
+      document.title = 'Virgin – zuletzt ' + absEl.textContent;
+      function rel() {
+        const diffMs = Date.now() - date.getTime();
+        const sec = Math.floor(diffMs/1000);
+        const min = Math.floor(sec/60);
+        const hr = Math.floor(min/60);
+        let text;
+        if (hr) text = 'vor ' + hr + 'h ' + (min%60) + 'm';
+        else if (min) text = 'vor ' + min + 'm';
+        else text = 'vor ' + sec + 's';
+        relEl.textContent = '(' + text + ')';
+      }
+      rel();
+      setInterval(rel, 1000*30);
+    })();
+  </script>
+  <!-- Port-Audit: siehe scripts/utils/list-open-ports.sh -->
 </body>
 </html>
