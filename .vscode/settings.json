@@ -1,5 +1,16 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:system",
     "python-envs.pythonProjects": [],
-    "liveServer.settings.port": 5503
+    "liveServer.settings.port": 5501,
+    "liveServer.settings.ignoreFiles": [
+        ".vscode/**",
+        "**/*.scss",
+        "**/*.sass",
+        "**/*.ts",
+        "node_modules/**"
+    ],
+    "terminal.integrated.env.linux": {
+        "PORT": "3000",
+        "LIVE_SERVER_PORT": "5501"
+    }
 }
