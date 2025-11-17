@@ -1,24 +1,10 @@
-# Port-Konfiguration: Backend (3000), Frontend/nginx (8080), Live Server (5501)
-# Bei Konflikten: PORT=3001 docker compose up oder ports in dieser Datei anpassen
+# Minimalistische Konfiguration: Nur Frontend (nginx) auf Port 8080
+# Backend ist optional und kann lokal via "cd backend && npm run dev" gestartet werden
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "${PORT:-3000}:3000"
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - ./backend/src:/app/src
-      - ./backend/public:/app/public
-      - ./web/public:/app/web/public:ro
-    command: npm run dev
-
   frontend:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
       - ./web/public:/usr/share/nginx/html:ro
-    depends_on:
-      - backend
     restart: unless-stopped
