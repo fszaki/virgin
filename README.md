@@ -1,35 +1,40 @@
-# Virgin Projekt (API + UI)
+# Virgin Projekt
 
 > Status: Beta – Diese Codebasis befindet sich derzeit im Beta-Zustand. Änderungen können brechend sein; Workflows und Struktur werden aktiv stabilisiert.
 
-Ordnerstruktur:
-- backend: Express-API + statische UI (HTML/JS/CSS)
-- scripts: Server-Management-Skripte
-- .gitignore: Ignoriert Node-Outputs
+**Autor:** Felix Szakinnis
 
-## Web-Struktur (neu)
+## Architektur
 
-- `web/views/` – serverseitig ausgelieferte Seiten: `/, /landing, /statistik`
-- `web/public/` – statische Assets (HTML/CSS/JS)
-- `frontend/` – veraltet (nur noch README vorhanden)
+- **Frontend:** nginx (Docker Compose) serviert `web/public/` auf Port 8080
+- **Backend (optional):** Express-API auf Port 3000 für `/api/*` Endpoints
+- Statische Website läuft ohne Backend
 
-## Schnellstart
+## Quick Start
 
+**Statische Website (nur Frontend):**
 ```bash
-cd /workspaces/virgin/backend
-npm install
-npm start
+docker compose up -d
+# Frontend (nginx): http://localhost:8080
 ```
 
-Optional: `"$BROWSER" http://localhost:3000` öffnen
+**Optional: Backend für API-Endpoints:**
+```bash
+cd backend
+npm install
+npm run dev     # Dev-Server mit Hot-Reload auf Port 3000
+```
 
-Direktaufrufe:
-- Views: `http://localhost:3000/`, `http://localhost:3000/landing`, `http://localhost:3000/statistik`
-- Legacy-UI (Backend Demo): `http://localhost:3000/ui/`
+## Verfügbare Seiten
 
-## Verfügbare Commands
+- Homepage: `http://localhost:8080/` (statisch via nginx)
+- API (optional, wenn Backend läuft): `http://localhost:3000/api/*`
+- Legacy UI: `http://localhost:3000/ui/` (nur wenn Backend läuft)
+
+## Backend Commands (optional)
 
 ```bash
+cd backend
 npm run dev      # Entwicklung mit Hot-Reload
 npm start        # Start (Standardport 3000)
 npm test         # Backend-Tests (Node built-in)

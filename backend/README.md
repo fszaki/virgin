@@ -31,16 +31,14 @@ Optional: Browser öffnen
 
 ## 🌐 Endpoints
 
-- `GET  /` → `web/views/index.html`
-- `GET  /landing` → `web/views/landing.html`
-- `GET  /statistik` → `web/views/statistik.html`
+- `GET  /` → Statische Dateien aus `web/public` (via express.static)
 - `GET  /ui/` → Legacy Backend UI (statisch aus `backend/public`)
-- `GET  /api/hello`
-- `GET  /api/health`
-- `GET  /healthz`
-- `GET  /api/stats`
-- `POST /api/session/end`
-- `POST /api/session/audit`
+- `GET  /api/hello` → Test-Endpoint
+- `GET  /api/health` → Health-Check (JSON)
+- `GET  /healthz` → Health-Check mit Uptime
+- `GET  /api/stats` → Server-Statistiken
+- `POST /api/session/end` → Session beenden
+- `POST /api/session/audit` → Session-Audit
 
 ## 📂 Relevante Pfade
 

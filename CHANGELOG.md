@@ -1,6 +1,26 @@
 # Changelog
 
-Alle nennenswerten Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
+Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
+
+## [Unreleased] - 2025-11-17
+
+### Changed
+- **Simplified architecture:** Frontend-first approach with nginx serving static site
+- Docker Compose now starts only frontend (nginx:8080), backend optional
+- Removed landing and statistics pages, single homepage at `web/public/index.html`
+- Removed empty directories: `src/`, `bin/`, `frontend/`
+- Consolidated documentation: removed `docs/README.main.md` duplicate
+- Port-checking simplified in `backend/package.json`
+- Added author name (Felix Szakinnis) to homepage footer
+
+### Added
+- Port-check utility: `scripts/utils/check-ports.sh`
+- Dynamic port configuration support in docker-compose.yml
+
+### Removed
+- Server-side views: `/landing` and `/statistik` routes
+- Backend container from default Docker Compose setup
+- Deprecated directory structure cleanup
 
 ## [2025-11-16]
 

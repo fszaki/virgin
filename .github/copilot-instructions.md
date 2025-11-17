@@ -3,12 +3,14 @@
 Purpose: Give AI coding agents the minimum, concrete context to be productive here. Document actual patterns used in this codebase, not aspirations.
 
 ## Big Picture
-- Server-first setup. Primary runtime is `backend/` (Express on port 3000). Static assets live in `web/public/`. Legacy folders (`app/`, `frontend/`) are deprecated.
-- API + static delivery in one service:
-  - API: JSON under `/api/*` (e.g., `/api/health`, `/api/stats`, session endpoints)
-  - Static: `web/public` is served at `/` via `express.static(...)`
-  - Legacy static UI (kept for demos): `backend/public` mounted under `/ui/`
-- Views: The server routes map `/`, `/landing`, `/statistik` to files in `web/views` (now present). Static homepage also exists at `web/public/index.html`.
+- **Frontend-first setup:** nginx (via Docker Compose) serves static site from `web/public/` on port 8080
+- **Backend (optional):** Express on port 3000 for API endpoints only
+- Static site runs independently without backend
+- API endpoints (when backend runs):
+  - JSON under `/api/*` (e.g., `/api/health`, `/api/stats`, session endpoints)
+  - Static: `web/public` served at `/` via `express.static(...)`
+  - Legacy UI: `backend/public` mounted under `/ui/`
+- No server-side views - single `web/public/index.html` homepage
 
 Key files:
 - Backend entry: `backend/src/server.js` (ESM)
@@ -18,28 +20,25 @@ Key files:
 - Scripts (Docker Compose start/stop): `scripts/server/*.sh`
 
 ## Run & Debug
-- Local dev (hot reload):
+- Frontend only (recommended for static site):
+  ```bash
+  docker compose up -d  # nginx on port 8080
+  ```
+- Backend (optional, for API):
   ```bash
   cd backend
   npm install
   npm run dev   # node --watch src/server.js (port 3000)
   ```
-- Standard start:
-  ```bash
-  cd backend
-  npm start
-  ```
-- Health checks:
+- Health checks (backend only):
   - `GET /api/health` → `{ status: "ok" }`
   - `GET /healthz` → `{ status, uptime, timestamp }`
-- Optional (Docker Compose, starts backend:3000 and nginx:8080):
+- Helper scripts:
   ```bash
-  ./scripts/server/start-server.sh
-  ./scripts/server/restart-servers.sh
-  ./scripts/server/kill-server.sh
+  ./scripts/server/start-server.sh     # Start frontend via Compose
+  ./scripts/server/kill-server.sh      # Stop all services
+  ./scripts/utils/check-ports.sh       # Check port availability
   ```
-  Note: `frontend/` is deprecated; `docker-compose.yml` still mounts `./frontend/public` (may be empty). Prefer `web/public` in the unified structure.
-  Compose is updated to mount `./web/public` for the nginx frontend.
 
 ## API Essentials
 - Patterns (see `backend/src/server.js`):
@@ -57,13 +56,14 @@ Key files:
   - `compute_statistics(rows)` aggregates numeric fields across rows
 
 ## Conventions
-- Modules: ES Modules in `backend/` (`type: module`), use `import ... from`.
-- Routing style: Route handlers live in `backend/src/server.js` (no separate router modules yet). Keep endpoint list in the startup banner updated when adding routes.
+- **Static site:** All assets in `web/public/` (HTML, CSS, images) served by nginx on port 8080
+- **Backend (optional):** ES Modules in `backend/` (`type: module`), use `import ... from`
+- Routing style: API handlers in `backend/src/server.js`, no separate routers
 - Static files:
-  - Place assets in `web/public` → available directly under `/` (e.g., `/styles.css`)
-  - Legacy demo UI under `/ui/*` from `backend/public`
-- Errors: Use HTTP 400 with `{ error: string }` for validation failures.
-- Ports: Default `PORT=3000` (can be overridden via env var).
+  - Primary: `web/public/` → served by nginx and express.static
+  - Legacy demo UI: `backend/public` under `/ui/*`
+- Errors: HTTP 400 with `{ error: string }` for validation failures
+- Ports: Frontend 8080 (nginx), Backend 3000 (Express, optional)
 
 ## What NOT to use
 - `app/` is legacy (CommonJS + interactive prompt). `app/package.json` intentionally exits for `start/dev`.
